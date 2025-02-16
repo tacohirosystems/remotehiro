@@ -1,0 +1,91 @@
+{% extends "layouts/base.html" -%}
+{% from "components/sidebar.html" import sidebar -%}
+
+{%- block title -%}
+  {{ assigns.job.employment_type_name }}
+
+  {%- if assigns.job.is_remote -%}
+    Remote
+  {%- elif assigns.job.onsite_locations|length > 0 and assigns.job.applicant_locations|length > 0 -%}
+    Hybrid
+  {%- else -%}
+    On-site
+  {% endif %}
+  {{ assigns.job.position }}
+  (Starting {{ assigns.job.location_salaries[0].min_salary_formatted }})
+  at {{ assigns.job.company_name }}
+{%- endblock -%}
+
+{%- block head -%}
+  {{ super() }}
+  {%- if assigns.build_info.commit_hash is not none -%}
+    <link rel="stylesheet" href="/assets/css/pages/job_view/style-{{ assigns.build_info.commit_hash }}.css">
+  {%- else -%}
+    <link rel="stylesheet" href="/assets/css/pages/job_view/style.css">
+  {%- endif -%}
+
+  <!-- Primary Meta Tags -->
+  <meta name="description" content="{{ assigns.job.company_name }} is hiring a {{ assigns.job.position }} (Starting {{ assigns.job.location_salaries[0].min_salary_formatted }}).">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://www.remotehiro.com/jobs/{{ assigns.job.position|slugify }}-{{ assigns.job.id }}">
+  <meta property="og:title" content="{{ assigns.job.position }} (Starting {{ assigns.job.location_salaries[0].min_salary_formatted }}) at {{ assigns.job.company_name }}">
+  <meta property="og:description" content="{{ assigns.job.company_name }} is hiring a {{ assigns.job.position }} (Starting {{ assigns.job.location_salaries[0].min_salary_formatted }}).">
+  <meta property="og:image" content="https://www.remotehiro.com/assets/images/thumbnail.jpg">
+
+  <!-- X (Twitter) -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://www.remotehiro.com/jobs/{{ assigns.job.position|slugify }}-{{ assigns.job.id }}">
+  <meta property="twitter:title" content="{{ assigns.job.position }} (Starting {{ assigns.job.location_salaries[0].min_salary_formatted }}) at {{ assigns.job.company_name }}">
+  <meta property="twitter:description" content="{{ assigns.job.company_name }} is hiring a {{ assigns.job.position }} (Starting {{ assigns.job.location_salaries[0].min_salary_formatted }}).">
+  <meta property="twitter:image" content="https://www.remotehiro.com/assets/images/thumbnail.jpg">
+{%- endblock -%}
+
+{%- block body -%}
+  <main class="page-container">
+    {%- call sidebar() -%}{%- endcall -%}
+
+    <section class="job-page-description" style="padding-top: 1rem;">
+      <article>
+        <a
+          href="/{{ bool(query is not none and query != '', '?' ~ query, '') }}"
+          preload="mouseover">
+          [Back to job results]
+        </a>
+      </article>
+
+      <br>
+
+      {%- if assigns.job.apply_url is not none -%}
+        <article>
+          <a href="{{ assigns.job.apply_url }}" rel="nofollow noopener">[Apply for this position]</a>
+        </article>
+      {%- endif -%}
+
+      {%- if assigns.job.apply_email is not none -%}
+        <article>
+          <a href="mailto:{{ assigns.job.apply_email }}">[Apply for this position]</a>
+        </article>
+      {%- endif -%}
+
+      {%- include "partials/job_details.html" -%}
+
+      {%- if assigns.job.apply_url is not none -%}
+        <article>
+          <a href="{{ assigns.job.apply_url }}" rel="nofollow noopener">[Apply for this position]</a>
+        </article>
+      {%- endif -%}
+
+      {%- if assigns.job.apply_email is not none -%}
+        <article>
+          <a href="mailto:{{ assigns.job.apply_email }}">[Apply for this position]</a>
+        </article>
+      {%- endif -%}
+    </section>
+
+  </main>
+{%- endblock -%}
+
+{%- block script -%}
+{%- endblock -%}

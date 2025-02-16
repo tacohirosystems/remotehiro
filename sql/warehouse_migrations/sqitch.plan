@@ -1,0 +1,5 @@
+%syntax-version=1.0.0
+%project=remotehiro-warehouse
+%uri=https://github.com/tacohirosystems/remotehiro
+
+20260118142952_init 2026-01-18T14:30:49Z sekun <sekun@litten> # Initialize warehouse.job_salaries_in_alt_currencies

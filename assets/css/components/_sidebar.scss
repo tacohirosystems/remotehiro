@@ -1,0 +1,30 @@
+@use '../base/var';
+
+.sidebar {
+  margin: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+
+  @media (min-width: var.$bp-md) {
+    padding: 1rem 0rem;
+    margin: 0;
+  }
+
+  @media (min-width: var.$bp-lg) {
+    position: sticky;
+    top: 0;
+  }
+}
+
+.sidebar > fieldset {
+  margin: 0;
+}
+
+.sidebar > .brand > h3 {
+  margin: 0;
+}
+
+.sidebar > .build-info {
+  font-family: monospace;
+}

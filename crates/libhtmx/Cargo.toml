@@ -1,0 +1,13 @@
+[package]
+name = "libhtmx"
+edition.workspace = true
+homepage.workspace = true
+include.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+version.workspace = true
+license.workspace = true
+
+[dependencies]
+http.workspace = true
+headers.workspace = true

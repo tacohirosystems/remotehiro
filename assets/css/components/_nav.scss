@@ -1,0 +1,19 @@
+.nav {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+  font-size: var(--font-sm);
+
+  @media (min-width: 768px) {
+    display: block;
+  }
+}
+
+.nav > ul {
+  padding: 0;
+  margin: 0;
+}
+
+.nav > ul > li {
+  list-style: none;
+}

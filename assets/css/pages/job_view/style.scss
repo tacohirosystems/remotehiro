@@ -1,0 +1,31 @@
+@use '../../mixins/grid';
+
+@import '../../base/var';
+@import '../../components/nav';
+@import '../../components/sidebar';
+
+.page-container {
+  @include grid.two-col;
+}
+
+textarea {
+  font-family: monospace;
+}
+
+.job-page-description {
+  width: 100%;
+  padding: 1rem;
+
+  @media (min-width: 1024px) {
+    width: 80%;
+  }
+
+  pre > code {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+
+  h1 {
+    margin-bottom: 0.25rem;
+  }
+}

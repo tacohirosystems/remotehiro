@@ -1,0 +1,63 @@
+@use '../base/var';
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.form > .form__error {
+  color: red;
+  font-weight: bold;
+}
+
+.form > hr {
+  width: 100%;
+}
+
+.form__field {
+  display: flex;
+  flex-direction: column;
+}
+
+.form__field:has(
+    select[required],
+    textarea[required],
+    input:not([type=checkbox]):not([type=radio]):is([required])
+  ) > .form__field-label:after {
+  content: " *";
+  color: red;
+}
+
+.form__field > p {
+  margin: 0;
+}
+
+.form__field-salary-range > div {
+  display: flex;
+}
+
+.form__field:has(input,textarea,select) > .form__field-label {
+  font-weight: bold;
+  font-size: var.$text-sm;
+}
+
+/* Fieldset, fieldset legend */
+.form__fieldset > .form__fieldset-legend {
+  font-weight: bold;
+  font-size: var.$text-sm;
+}
+
+.form__fieldset:has(
+  input[required],
+  textarea[required],
+  select[required]
+) > .form__fieldset-legend:after {
+  content: " *";
+  color: red;
+}
+
+.form__field-error {
+  color: red;
+  font-size: var.$text-sm;
+}

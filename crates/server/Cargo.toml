@@ -1,0 +1,39 @@
+[package]
+name = "server"
+edition.workspace = true
+homepage.workspace = true
+include.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+version.workspace = true
+license.workspace = true
+
+[dependencies]
+model.workspace = true
+job.workspace = true
+warehouse.workspace = true
+
+su_sqlite.workspace = true
+su_template.workspace = true
+
+axum.workspace = true
+axum-extra.workspace = true
+
+rusqlite.workspace = true
+minijinja.workspace = true
+minijinja-contrib.workspace = true
+pulldown-cmark.workspace = true
+ammonia.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+serde_html_form.workspace = true
+slug.workspace = true
+time.workspace = true
+tokio.workspace = true
+tower-http.workspace = true
+url.workspace = true
+
+deadpool-sqlite.workspace = true
+
+tracing.workspace = true
+tracing-subscriber.workspace = true

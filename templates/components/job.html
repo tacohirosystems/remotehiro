@@ -1,0 +1,239 @@
+{% macro entry(job, current_dt) %}
+<tr
+  id="job-{{ job.id }}"
+  class="job"
+  style="{{ a11y_color(job.addon_highlight.addon_highlight is not none, job.addon_highlight.addon_highlight_color) }}">
+    <td class="job__position">
+      <a
+          href="/jobs/{{ job.position|slugify }}-{{ job.id }}"
+          style="{{ bool(job.addon_highlight == 'none', 'color: inherit;', '') }}"
+          preload="mouseover">
+        {{ job.position }}
+      </a>
+
+      {%- if job.bumped_at is not none -%}
+        <span class="job__position-bumped" title="Bumped {{ job.bumped_at }}">
+          🎈
+        </span>
+      {%- endif -%}
+    </td>
+
+    <td class="job__salary">
+      {{ job.location_salaries[0].min_salary_formatted }}
+      {%- if job.location_salaries[0].max_salary %}
+        - {{ job.location_salaries[0].max_salary_formatted }}
+      {%- endif -%}
+    </td>
+
+    <td class="job__company">
+      <span
+        style="{{ bool(job.addon_highlight.addon_highlight is not none, 'color: inherit;', '') }}"
+        preload="mouseover"
+      >
+        {{ job.company_name }}
+      </span>
+    </td>
+
+    <td class="job__category">
+      <a>
+        {{ job.category_name }}
+      </a>
+    </td>
+
+    <td class="job__location_type">
+      {%- if job.is_remote -%}
+        Remote
+      {%- elif job.onsite_locations|length > 0 and job.applicant_locations|length > 0 -%}
+        Hybrid
+      {%- else -%}
+        On-site
+      {%- endif -%}
+    </td>
+
+    <td class="job__employment_type">
+      {{ job.employment_type }}
+    </td>
+
+    <td class="job__location">
+      {%- if job.is_worldwide -%}
+        Worldwide
+      {%- else -%}
+        {%- if job.onsite_locations|length > 0 and job.applicant_locations > 0 -%}
+          <details>
+            <summary>
+              {%- for location in job.locations -%}
+                {%- if loop.index0 > 0 -%}, {% endif -%}
+                {{ location }}
+              {%- endfor -%}
+            </summary>
+            <p>
+              <span>
+                <b>On-site</b>:
+                {% for location in job.onsite_locations %}
+                  {%- if loop.index0 > 0 -%}, {% endif -%}
+                  {%- if location.city_name is not none -%}
+                    {{ location.city_name }} ({{ location.country_iso2 }})
+                  {%- else -%}
+                    {{ location.country_name or location.state_name or location.region_name }}
+                  {%- endif -%}
+                {%- endfor -%}
+              </span>
+
+              <br>
+
+              <span>
+                <b>
+                  {%- if job.is_remote -%}
+                    Remote
+                  {%- elif job.onsite_locations|length > 0 and job.applicant_locations|length > 0 -%}
+                    Hybrid
+                  {%- else -%}
+                    On-site
+                  {%- endif -%}
+                </b>:
+                {% for location in job.applicant_locations %}
+                  {%- if loop.index0 > 0 -%}, {% endif -%}
+                  {%- if location.city_name is not none -%}
+                    {{ location.city_name }} ({{ location.country_iso2 }})
+                  {%- elif location.country_name is not none -%}
+                    {{ location.country_name }}
+                  {%- elif location.state_name is not none -%}
+                    {{ location.state_name or location.region_name }}
+                  {%- elif location.business_region_name is not none -%}
+                    {{ location.business_region_flag }} {{ location.business_region_name }}
+                  {%- else -%}
+                    {{ location.region_name }}
+                  {%- endif -%}
+                {%- endfor -%}
+              </span>
+            </p>
+          </details>
+        {%- else -%}
+          {%- for location in job.locations -%}
+            {%- if loop.index0 > 0 -%}, {% endif -%}
+            {{ location }}
+          {%- endfor -%}
+        {%- endif -%}
+      {%- endif -%}
+    </td>
+
+    <td class="job__created_at">
+      <time datetime="{{ job.created_at }}" title="{{ job.created_at }}">
+        {{ job.relative_created_at|human_duration }} ago
+      </time>
+    </td>
+
+    <td class="job__mobile">
+      <div class="job__mobile-position">
+        <div>
+          <a
+              href="/jobs/{{ job.position|slugify }}-{{ job.id }}"
+              style="{{ bool(job.addon_highlight.addon_highlight is not none, 'color: inherit;', '') }}"
+              preload="mouseover"
+          >
+            {{ job.position }}
+
+          </a>
+
+          {%- if job.is_pinned -%}
+            <span>
+              📌
+            </span>
+          {%- endif -%}
+        </div>
+      </div>
+
+      <div class="job__mobile-company">
+        <!-- TODO: Support images -->
+        <!-- <img src="https://placehold.co/5x5.webp"> -->
+        <span>{{ job.company_name }}</span>
+      </div>
+
+      <div class="job__mobile-details">
+        <span>{{ job.location_salaries[0].min_salary_formatted }}
+        {%- if job.location_salaries[0].max_salary %}
+        - {{ job.location_salaries[0].max_salary_formatted }}</span>
+        {% endif %}
+        |
+        <span>
+          {%- if job.is_remote -%}
+            Remote
+          {%- elif job.onsite_locations|length > 0 and job.applicant_locations|length > 0 -%}
+            Hybrid
+          {%- else -%}
+            On-site
+          {%- endif -%}
+        </span>
+        |
+        <span>
+          {{ job.employment_type }}
+        </span>
+      </div>
+
+      <div class="job__mobile-locations">
+        <span>
+          {%- if job.is_worldwide -%}
+            Worldwide
+          {%- else -%}
+            {%- if job.locations|length > 2 -%}
+              <details>
+                <summary>
+                  {%- for location in (job.locations)[:3] -%}
+                    {%- if loop.index0 > 0 -%},{%- endif -%}
+                    {{ location }}
+                  {%- endfor -%}
+                  {%- if job.locations|length > 2 -%}
+                    , +{{ job.locations|length - 3 }} more
+                  {%- endif -%}
+                </summary>
+                <p>
+                  {%- for location in job.locations -%}
+                    {{ location }}
+                  {%- endfor -%}
+                </p>
+              </details>
+            {%- else -%}
+              {%- for location in job.locations -%}
+                {%- if loop.index0 > 0 -%},{%- endif -%}
+                {{ location }}
+              {%- endfor -%}
+            {%- endif -%}
+          {%- endif -%}
+        </span>
+      </div>
+    </td>
+
+    <td class="job__pinned">
+      {%- if job.is_pinned -%}
+        <span title="Pinned until {{ job.addon_pinned_until }}">📌</span>
+      {%- endif -%}
+    </td>
+  </tr>
+{% endmacro %}
+
+{% macro table() %}
+  <table class="table jobs">
+    <thead>
+      <th class="table__th--align-left job__position-heading">
+        Position
+      </th>
+
+      <th class="table__th--align-left job__salary-heading">
+        Salary
+      </th>
+
+      <th class="table__th--align-left job__company-heading">Company</th>
+
+      <th class="table__th--align-left job__category-heading">Category</th>
+      <th class="table__th--align-left job__location_type-heading">Type</th>
+      <th class="table__th--align-left job__employment_type-heading">Employment</th>
+      <th class="table__th--align-left job__location-heading">Location</th>
+      <th class="table__th--align-left job__created-at-heading"></th>
+      <th class="table__th--align-left job__pinned-heading"></th>
+    </thead>
+
+    <tbody>
+      {{ caller() }}
+    </tbody>
+  </table>
+{% endmacro %}

@@ -1,0 +1,152 @@
+@use '../base/var';
+
+details > summary::marker {
+  display: none;
+  content: "";
+}
+
+details {
+  cursor: pointer;
+}
+
+table.jobs {
+  border-collapse: collapse;
+  border-spacing: 0rem;
+  padding-bottom: 1rem;
+  width: 100%;
+
+  @media only screen and (min-width: var.$bp-lg) {
+    width: auto;
+  }
+
+  @media only screen and (max-width: var.$bp-lg) {
+    padding-top: 1rem;
+  }
+}
+
+table.jobs th {
+  @media only screen and (min-width: var.$bp-lg) {
+    padding: 1rem 0.30rem 0rem 0.30rem;
+  }
+}
+
+table.jobs td {
+  @media only screen and (min-width: var.$bp-lg) {
+    padding: 0.15rem 0.30rem;
+  }
+}
+
+table.jobs tr:nth-child(even) {
+}
+
+@media only screen and (max-width: 1023px) {
+  .jobs thead {
+    display: none;
+  }
+
+  .job__position {
+    display: none;
+  }
+
+  .job__salary {
+    display: none;
+  }
+
+  .job__company {
+    display: none;
+  }
+
+  .job__created_at {
+    display: none;
+  }
+
+  .job__location_type {
+    display: none;
+  }
+
+  .job__category {
+    display: none;
+  }
+
+  .job__employment_type {
+    display: none;
+  }
+
+  .job__location {
+    display: none;
+  }
+
+  .job__created-at {
+    display: none;
+  }
+
+  .job__pinned {
+    display: none;
+  }
+
+  table.jobs tr > td {
+    padding-bottom: 0.67rem;
+    margin-bottom: 0.67rem;
+  }
+
+  .job__mobile {
+    width: 100%;
+
+    &:not(:last-child) {
+      border-bottom: 1px solid gray;
+    }
+  }
+}
+
+.job__pinned {
+  @media screen and (max-width: 1024px) {
+    display: none;
+  }
+}
+
+.job__category, .job__category-heading {
+  display: none;
+
+  @media screen and (min-width: var.$bp-2xl) {
+    display: block;
+  }
+}
+
+.jobs-container {
+  max-height: 100vh;
+  overflow-y: auto;
+  margin: 0 1rem;
+
+  @media (min-width: var.$bp-sm) {
+    margin: 0;
+  }
+}
+
+.job__mobile-position {
+  display: flex;
+  justify-content: space-between;
+}
+
+.job__mobile {
+  display: block;
+
+  @media (min-width: 1024px) {
+    display: none;
+  }
+}
+
+.job__mobile-company {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.job__mobile-details {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+}
+
+.job__mobile-locations {
+}

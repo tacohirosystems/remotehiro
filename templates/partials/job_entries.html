@@ -1,0 +1,4 @@
+{% import "components/job.html" as job %}
+{% for j in jobs %}
+  {{ job.entry(j, current_dt) }}
+{% endfor %}

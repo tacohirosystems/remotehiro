@@ -1,0 +1,14 @@
+%syntax-version=1.0.0
+%project=remotehiro
+%uri=https://github.com/tacohirosystems/remotehiro
+
+20260106200236_add_location_tables 2026-01-06T20:02:45Z sekun <sekun@duck.com> # Add all location tables
+20260106211358_add_jobs 2026-01-06T21:16:25Z sekun <sekun@duck.com> # feat: Add jobs
+20260106211625_create_jobs_view 2026-01-06T21:13:58Z sekun <sekun@duck.com> # Creates a view with joined tables for convenience
+20260110124131_enriched_jobs_add_apply_email 2026-01-10T12:41:43Z sekun <sekun@litten> # Add apply_email
+20260111084106_jobs_location_salaries_init 2026-01-11T08:41:22Z sekun <sekun@litten> # Add jobs_location_salaries
+20260111093206_add_states 2026-01-11T09:32:06Z sekun <sekun@litten> # Add states
+20260115235814_redo_tables 2026-01-15T23:58:19Z sekun <sekun@litten> # REDOOO
+20260118041617_jobs_add_deleted_at 2026-01-18T04:16:23Z sekun <sekun@litten> # Add deleted_at to jobs
+20260118174649_jobs_location_salaries_add_pk 2026-01-18T17:46:59Z sekun <sekun@litten> # Add pk to jobs_location_salaries
+20260123102636_add_business_regions 2026-01-23T10:26:43Z sekun <sekun@litten> # Add business regions

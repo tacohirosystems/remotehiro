@@ -1,0 +1,45 @@
+[package]
+name = "job"
+edition.workspace = true
+homepage.workspace = true
+include.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+version.workspace = true
+license.workspace = true
+
+[dependencies]
+model.workspace = true
+location.workspace = true
+category.workspace = true
+tag.workspace = true
+employment.workspace = true
+company.workspace = true
+libhtmx.workspace = true
+database.workspace = true
+
+su_sqlite.workspace = true
+su_template.workspace = true
+
+axum.workspace = true
+axum-extra.workspace = true
+reqwest.workspace = true
+minijinja.workspace = true
+headers.workspace = true
+tower-http.workspace = true
+
+rusqlite.workspace = true
+deadpool-sqlite.workspace = true
+
+serde.workspace = true
+serde_json.workspace = true
+serde_html_form.workspace = true
+
+tracing.workspace = true
+
+rss.workspace = true
+quick-xml.workspace = true
+time.workspace = true
+pulldown-cmark.workspace = true
+ammonia.workspace = true
+slug.workspace = true

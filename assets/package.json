@@ -1,0 +1,19 @@
+{
+  "name": "builder",
+  "version": "0.0.1",
+  "scripts": {
+    "build": "npm install",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": {
+    "builder": "build.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "esbuild": "^0.25.2",
+    "esbuild-sass-plugin": "^3.3.1",
+    "@liber-ufpe/esbuild-plugin-compress": "^1.1.0"
+  }
+}

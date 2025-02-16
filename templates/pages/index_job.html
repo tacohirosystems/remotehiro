@@ -1,0 +1,287 @@
+{% extends "layouts/base.html" %}
+{% import "components/job.html" as job %}
+{% from "components/sidebar.html" import sidebar %}
+
+{%- block title -%}
+Remote jobs for programming, quality assurance, design, and more
+{%- endblock -%}
+
+{% block head %}
+  {{ super() }}
+  {%- if assigns.build_info.commit_hash is not none -%}
+    <link rel="stylesheet" href="/assets/css/pages/job_index/style-{{ assigns.build_info.commit_hash }}.css">
+  {%- else -%}
+    <link rel="stylesheet" href="/assets/css/pages/job_index/style.css">
+  {%- endif -%}
+{% endblock %}
+
+{% block body %}
+  <main class="index-container">
+    {% call sidebar(assigns.build_info) %}
+      <button id="toggle-filters">Filters</button>
+
+      <search>
+        <form id="filters" method="GET" action="/">
+          <noscript>
+            <menu>
+                <button type="submit">Apply filters</button>
+            </menu>
+          </noscript>
+
+          <fieldset>
+            <input
+                type="text"
+                name="query"
+                placeholder="Search for a job"
+                value="{{ filters.query or '' }}"
+            >
+          </fieldset>
+
+          <fieldset id="salary" class="fieldset">
+            <legend>Salary</legend>
+            <div>
+              <label>
+                Min
+                <select name="min_salary">
+                  {%- if filters.min_salary is none -%}
+                    <option value="" selected="">
+                      --
+                    </option>
+                  {%- else -%}
+                    <option value="">
+                      --
+                    </option>
+                  {%- endif -%}
+
+                  {%- for figure in assigns.figures -%}
+                    {%- if filters.min_salary == figure -%}
+                      <option value="{{ figure }}" selected="">
+                        {{ figure|comma_split }}/year
+                      </option>
+                    {%- else -%}
+                      <option value="{{ figure }}">
+                        {{ figure|comma_split }}/year
+                      </option>
+                    {%- endif -%}
+                  {%- endfor -%}
+                </select>
+              </label>
+              <label>
+                <select name="currency">
+                  {%- for currency in assigns.available_currencies -%}
+                    {%- if filters.currency == currency -%}
+                      <option value="{{ currency }}" selected="">
+                        {{ currency }}
+                      </option>
+                    {%- else -%}
+                      <option value="{{ currency }}">
+                        {{ currency }}
+                      </option>
+                    {%- endif -%}
+                  {%- endfor -%}
+                </select>
+              </label>
+            </div>
+          </fieldset>
+
+          <fieldset class="fieldset">
+            <legend>
+              <label>
+                {%- if filters.employment_type is not none and string_array_contains(assigns.employment_types|map(attribute='name'), filters.employment_type) -%}
+                  <input id="employment_type" type="checkbox" checked="">
+                {%- else -%}
+                  <input id="employment_type" type="checkbox">
+                {%- endif -%}
+                Employment
+              </label>
+            </legend>
+
+            <ul class="filter-fieldset-container">
+              {% for type in assigns.employment_types %}
+                <li>
+                  <label>
+                    {%- if filters.employment_type is not none and type.name in filters.employment_type -%}
+                      <input
+                        type="checkbox"
+                        name="employment_type"
+                        value="{{ type.name }}"
+                        checked=""
+                      >
+                    {%- else -%}
+                      <input
+                        type="checkbox"
+                        name="employment_type"
+                        value="{{ type.name }}"
+                      >
+                    {%- endif -%}
+                    {{ type.name }}
+                  </label>
+                </li>
+              {% endfor %}
+            </ul>
+          </fieldset>
+
+          <fieldset class="fieldset">
+            <legend>
+              <label>
+                {%- if filters.category is not none and string_array_contains(assigns.categories|map(attribute='name'), filters.category) -%}
+                  <input id="category" type="checkbox" checked="">
+                {%- else -%}
+                  <input id="category" type="checkbox">
+                {%- endif -%}
+                Category
+              </label>
+            </legend>
+
+            <ul class="filter-fieldset-container">
+              {% for category in assigns.categories %}
+                <li>
+                  <label>
+                    {%- if filters.category is not none and category.name in filters.category -%}
+                      <input
+                        type="checkbox"
+                        name="category"
+                        value="{{ category.name }}"
+                        checked=""
+                      >
+                    {%- else -%}
+                      <input
+                        type="checkbox"
+                        name="category"
+                        value="{{ category.name }}"
+                      >
+                    {%- endif -%}
+                    {{ category.name }}
+                  </label>
+                </li>
+              {% endfor %}
+            </ul>
+          </fieldset>
+
+          <fieldset id="tag" class="fieldset">
+            <legend>
+              <label>
+                {%- if filters.tag is not none and string_array_contains(assigns.tags|map(attribute='name'), filters.tag) -%}
+                  <input id="tag" type="checkbox" checked="">
+                {%- else -%}
+                  <input id="tag" type="checkbox">
+                {%- endif -%}
+                Tags
+              </label>
+            </legend>
+
+            <ul class="filter-fieldset-container">
+              {% for tag in assigns.tags %}
+                <div>
+                  <label>
+                    {%- if filters.tag is not none and tag.name in filters.tag -%}
+                      <input
+                        type="checkbox"
+                        name="tag"
+                        value="{{ tag.name }}"
+                        checked=""
+                      >
+                    {%- else -%}
+                      <input
+                        type="checkbox"
+                        name="tag"
+                        value="{{ tag.name }}"
+                      >
+                    {%- endif -%}
+                    {{ tag.name }}
+                  </label>
+                </div>
+              {% endfor %}
+            </ul>
+          </fieldset>
+
+          <fieldset class="fieldset">
+            <legend>
+              <label>
+                {%- if filters.region is not none and string_array_contains(assigns.regions|map(attribute='name'), filters.region) -%}
+                  <input id="region" type="checkbox" checked="">
+                {%- else -%}
+                  <input id="region" type="checkbox">
+                {%- endif -%}
+                Regions
+              </label>
+            </legend>
+
+            <ul class="filter-fieldset-container">
+              {% for region in assigns.regions %}
+                <li>
+                  <label>
+                    {%- if filters.region is not none and region.name in filters.region -%}
+                      <input
+                        type="checkbox"
+                        name="region"
+                        value="{{ region.name }}"
+                        checked=""
+                      >
+                    {%- else -%}
+                      <input
+                        type="checkbox"
+                        name="region"
+                        value="{{ region.name }}"
+                      >
+                    {%- endif %}
+                    {{ region.name }}
+                  </label>
+                </li>
+              {% endfor %}
+            </ul>
+          </fieldset>
+
+          <fieldset class="fieldset">
+            <legend>
+              <label>
+                {%- if filters.country is not none and string_array_contains(assigns.countries|map(attribute='iso2'), filters.country) -%}
+                  <input id="country" type="checkbox" checked="">
+                {%- else -%}
+                  <input id="country" type="checkbox">
+                {%- endif -%}
+                Countries
+              </label>
+            </legend>
+            <ul class="filter-fieldset-container">
+              {% for country in assigns.countries %}
+                <li>
+                  <label>
+                    {%- if filters.country is not none and country.iso2 in filters.country -%}
+                      <input
+                        type="checkbox"
+                        name="country"
+                        value="{{ country.iso2 }}"
+                        checked=""
+                      >
+                    {%- else -%}
+                      <input
+                        type="checkbox"
+                        name="country"
+                        value="{{ country.iso2 }}"
+                      >
+                    {%- endif -%}
+                    {{ country.name }}
+                  </label>
+                </li>
+              {% endfor %}
+            </ul>
+          </fieldset>
+        </form>
+      </search>
+    {% endcall %}
+
+    <section class="jobs-container">
+      {% call job.table() %}
+        {% for l in assigns.jobs %}
+          {{ job.entry(l, current_dt) }}
+        {% endfor %}
+      {% endcall %}
+    </section>
+  </main>
+{% endblock %}
+
+{% block script %}
+  <script src="/assets/script/index.js"></script>
+  <script src="/assets/script/preload.js"></script>
+{% endblock %}

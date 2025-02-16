@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark">
+    <title>
+      {%- block title -%}
+      {%- endblock -%}
+    </title>
+
+    {% block head %}
+      <link rel="stylesheet" href="/assets/css/vendors/normalize.min.css">
+    {% endblock %}
+
+    <link rel="icon" type="image/webp" href="/assets/favicon/favicon-96x96.webp" sizes="96x96">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.webp">
+    <meta name="apple-mobile-web-app-title" content="RemoteHiro">
+    <link rel="manifest" href="/assets/favicon/site.webmanifest">
+
+    {%- if assigns.build_info.version != "dev" -%}
+      <script async src="/assets/script/script.js"></script>
+      <script>
+        window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
+        plausible.init({
+          endpoint: "/api/event"
+        })
+      </script>
+    {%- endif -%}
+  </head>
+
+  <body hx-ext="preload">
+    {% block body %}{% endblock %}
+    {% block script %}{% endblock %}
+  </body>
+</html>

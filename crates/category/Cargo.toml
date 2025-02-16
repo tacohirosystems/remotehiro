@@ -1,0 +1,15 @@
+[package]
+name = "category"
+edition.workspace = true
+homepage.workspace = true
+include.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+version.workspace = true
+license.workspace = true
+
+[dependencies]
+model.workspace = true
+
+rusqlite.workspace = true
+deadpool-sqlite.workspace = true

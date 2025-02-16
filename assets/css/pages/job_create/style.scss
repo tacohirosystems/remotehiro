@@ -1,0 +1,40 @@
+@use '../../mixins/grid';
+
+@import '../../components/form';
+@import '../../components/nav';
+@import '../../components/sidebar';
+
+.form__fieldset-company-socials {
+  display: flex;
+  flex-direction: column;
+  font-weight: 500;
+}
+
+.form__fieldset#form__locations {
+  max-height: 20vh;
+  overflow-y: auto;
+}
+
+.form__fieldset#form__locations > div {
+  display: flex;
+  flex-direction: column;
+}
+
+.form__highlight {
+  display: flex;
+  flex-direction: column;
+}
+
+textarea {
+  font-family: monospace;
+}
+
+.create-container {
+  @include grid.two-col;
+}
+
+.form__fieldset:has(.form__fieldset) {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}

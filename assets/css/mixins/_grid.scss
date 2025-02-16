@@ -1,0 +1,25 @@
+@use '../base/var';
+
+@mixin two-col {
+  @media (min-width: var.$bp-md) {
+    display: grid;
+    grid-template-columns: 15% auto;
+    column-gap: 0.5rem;
+    margin: 0 1rem;
+  }
+
+  @media (min-width: var.$bp-lg) {
+    display: grid;
+    grid-template-columns: 15% auto;
+    column-gap: 0.5rem;
+    margin: 0 1rem;
+  }
+
+  @media (min-width: var.$bp-xl) {
+    grid-template-columns: 15% auto;
+  }
+
+  @media (min-width: var.$bp-2xl) {
+    grid-template-columns: min-content auto;
+  }
+}

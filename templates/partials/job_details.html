@@ -1,0 +1,111 @@
+<h1>
+  {{ assigns.job.company_name }} is hiring a
+  {% if assigns.job.is_remote %}
+    Remote
+  {%- elif assigns.job.onsite_locations|length > 0 and assigns.job.applicant_locations|length > 0 -%}
+    Hybrid
+  {%- else -%}
+    On-site
+  {% endif %}
+
+  {{ assigns.job.position }}
+</h1>
+
+<article>
+  <time datetime="{{ assigns.job.created_at }}">
+    Posted {{ assigns.job.relative_created_at|human_duration }} ago
+  </time>
+</article>
+
+<span>Category: {{ assigns.job.category_name }}</span>
+
+<br>
+
+<span>Tags:
+  {%- for tag in assigns.job.tags -%}
+    {% if loop.index0 > 0 %}, {% endif %}
+    {{ tag }}
+  {%- endfor -%}
+</span>
+
+<br>
+
+<article>
+  <h2>Location</h2>
+  {%- if assigns.job.is_worldwide -%}
+    <span>Worldwide</span>
+  {%- endif -%}
+
+  {%- if assigns.job.onsite_locations|length > 0 -%}
+    <h3>On-site</h3>
+    <ul>
+      {%- for location in assigns.job.onsite_locations -%}
+      <li>
+        {{ location.country_flag }}
+        {{ location.city_name }},
+        {{ location.country_name }}
+      </li>
+    {%- endfor -%}
+    </ul>
+  {%- endif -%}
+
+  {%- if assigns.job.applicant_locations|length > 0 -%}
+    <h3>
+      {%- if assigns.job.is_remote -%}
+        Remote
+      {%- else -%}
+        Work from home
+      {%- endif -%}
+    </h3>
+    <ul>
+      {%- for location in assigns.job.applicant_locations -%}
+        <li>
+          {%- if location.city_name -%}
+            {{ location.country_flag }} {{ location.city_name }}, {{ location.country_name }}
+          {%- elif location.state_name -%}
+            {{ location.country_flag }} {{ location.state_name }}, {{ location.country_name }}
+          {%- elif location.country_name -%}
+            {{ location.country_flag }} {{ location.country_name }} (any)
+          {%- elif location.business_region_name -%}
+            {{ location.business_region_flag }} {{ location.business_region_name }} (any)
+          {%- else -%}
+            {{ location.region_name }}
+          {%- endif -%}
+        </li>
+      {%- endfor -%}
+    </ul>
+  {%- endif -%}
+</article>
+
+<article>
+  <h2>Salary and compensation</h2>
+  <ul>
+    {%- for location_salary in assigns.job.location_salaries -%}
+      <li>
+        <b>
+          {%- if not location_salary.region_id -%}
+            Worldwide
+          {%- elif location_salary.city_name -%}
+            {{ location_salary.country_flag }} {{ location_salary.city_name }}, {{ location_salary.country_name }}
+          {%- elif location_salary.state_name -%}
+            {{ location_salary.country_flag }}
+            {{ location_salary.state_name }},
+            {{ location_salary.country_name }} (any)
+          {%- elif location_salary.country_name -%}
+            {{ location_salary.country_flag }} {{ location_salary.country_name }} (any)
+          {%- else -%}
+            {{ location_salary.region_name }}
+          {%- endif -%}
+        </b>:
+        {{ location_salary.currency_symbol }}{{ location_salary.min_salary|comma_split }}
+        {% if location_salary.max_salary -%}
+          to
+          {{ location_salary.currency_symbol }}{{ location_salary.max_salary|comma_split }}
+        {% endif %}
+        (annual)
+      </li>
+    {%- endfor -%}
+  </ul>
+</article>
+
+{{ assigns.job.description|render_markdown|safe }}

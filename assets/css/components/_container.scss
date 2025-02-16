@@ -1,0 +1,36 @@
+@import '../base/var';
+
+.container {
+  @media (min-width: $bp-md) {
+    display: grid;
+    grid-template-columns: 35% auto;
+    column-gap: 0.5rem;
+    margin: 0 1rem;
+  }
+
+  @media (min-width: $bp-lg) {
+    display: grid;
+    grid-template-columns: 35% auto;
+    column-gap: 0.5rem;
+    margin: 0 1rem;
+  }
+
+  @media (min-width: $bp-xl) {
+    grid-template-columns: 20% auto;
+  }
+
+  @media (min-width: $bp-2xl) {
+    grid-template-columns: 17% auto;
+  }
+}
+
+.sidebar {
+  margin: 1.5rem 1rem 0rem 1rem;
+
+  @media (min-width: $bp-md) {
+    display: flex;
+    padding-top: 1rem;
+    flex-direction: column;
+    margin: 0;
+  }
+}

@@ -1,0 +1,68 @@
+@use '../../mixins/grid';
+@use'../../base/var';
+
+@import '../../components/nav';
+@import '../../components/table';
+@import '../../components/sidebar';
+@import '../../components/job';
+
+#filters {
+  display: none;
+
+  @media (min-width: var.$bp-md) {
+    display: block;
+  }
+}
+
+#filters > noscript > menu {
+  display: flex;
+  justify-content: end;
+}
+
+#toggle-filters {
+  display: block;
+
+  @media (min-width: var.$bp-md) {
+    display: none;
+  }
+}
+
+#filters > fieldset > input[name=query] {
+  width: 100%;
+}
+
+#filters > fieldset:not(:first-child) {
+  margin-top: 0.75rem;
+}
+
+.fieldset input {
+  margin-right: 0.25rem;
+}
+
+.fieldset#tag > .filter-fieldset-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.fieldset > .filter-fieldset-container {
+  list-style: none;
+  margin: 0;
+  padding-left: 0rem;
+  max-height: 20vh;
+  overflow-y: auto;
+}
+
+.fieldset > legend {
+  font-weight: bold;
+}
+
+#selected-tags {
+  & > span:not(:last-child):after {
+    content: ", ";
+  }
+}
+
+.index-container {
+  @include grid.two-col;
+}

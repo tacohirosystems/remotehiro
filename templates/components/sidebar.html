@@ -1,0 +1,6 @@
+{% macro sidebar(build_info=none) %}
+  <aside class="sidebar">
+    {% include "components/nav.html" %}
+    {{ caller() }}
+  </aside>
+{% endmacro %}
