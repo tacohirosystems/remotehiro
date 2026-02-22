@@ -32,7 +32,7 @@ const html = {
   }
 };
 
-const FETCH_TIMEOUT = 150;
+const FETCH_TIMEOUT = 1000;
 
 // Source: https://github.com/bevacqua/fuzzysearch
 function fuzzysearch (needle, haystack) {
@@ -57,6 +57,8 @@ function fuzzysearch (needle, haystack) {
 }
 
 // On page load
+let submitTicker = null;
+
 html.getToggleFiltersButton()?.addEventListener("click", (e) => {
   let filtersForm = html.getFiltersForm();
 
@@ -68,6 +70,11 @@ html.getToggleFiltersButton()?.addEventListener("click", (e) => {
 });
 
 html.getFiltersForm()?.addEventListener("input", (e) => {
+  if (submitTicker != null) {
+    clearTimeout(submitTicker);
+  }
+
+  let form = html.getFiltersForm();
   // If it's a fieldset checkbox, then we toggle all of the checkboxes in the
   // fieldset whose `name` matches the ID.
   if (e.target.type == "checkbox" && e.target.id != "") {
@@ -80,28 +87,41 @@ html.getFiltersForm()?.addEventListener("input", (e) => {
     fieldsetCheckbox.indeterminate = uncheckedBoxes.length >= 1 && checkedBoxes.length >= 1;
     fieldsetCheckbox.checked = checkedBoxes.length >= 1 && uncheckedBoxes.length == 0;
   }
-
-  setTimeout(() => submitForm(html.getFiltersForm()), FETCH_TIMEOUT);
+  submitTicker = setTimeout(() => submitForm(toFormData(form), form.action), FETCH_TIMEOUT);
 });
 
-async function submitForm(form) {
-  const data = new FormData(form);
-  const queryParams = new URLSearchParams(data);
+function toFormData(form) {
+  const formData = new FormData(form);
+  let minSalary = formData.get("min_salary");
+
+  if (minSalary && parseInt(minSalary) <= 0) {
+    formData.delete("min_salary");
+  }
+
+  formData.entries().forEach(([k, v]) => {
+    if (v == "") {
+      formData.delete(k);
+    }
+  });
+  return formData;
+}
+
+async function submitForm(formData, action) {
+  console.log(formData);
+  const queryParams = new URLSearchParams(formData);
 
   // Push new query parameters to history
   const url = new URL(location);
 
   url.search = "";
   queryParams.entries().forEach(([k,v]) => {
-    if (v != "") {
-      url.searchParams.append(k, v);
-    }
+    url.searchParams.append(k, v);
   });
 
   history.pushState({}, "", url);
 
   // Dispatch request and replace content
-  const res = await fetch(form.action + '?' + queryParams.toString(), {
+  const res = await fetch(action + '?' + queryParams.toString(), {
     method: "GET",
     headers: {
       'Hx-Request': 'true'
@@ -111,7 +131,6 @@ async function submitForm(form) {
   let htmlRes = await res.text();
   html.getJobsTableBody().innerHTML = htmlRes;
 }
-
 
 let fieldsetCheckboxes = html.getFieldsetsCheckboxes();
 
