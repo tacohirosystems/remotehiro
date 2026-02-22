@@ -2,6 +2,8 @@
 
 find work, anywhere
 
+<img src="screenshot.png">
+
 ## What's remotehiro?
 
 remotehiro is a job board with performance, accessibility, and focus in mind.
