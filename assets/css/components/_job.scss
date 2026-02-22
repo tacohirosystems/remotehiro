@@ -113,8 +113,6 @@ table.jobs tr:nth-child(even) {
 }
 
 .jobs-container {
-  max-height: 100vh;
-  overflow-y: auto;
   margin: 0 1rem;
 
   @media (min-width: var.$bp-sm) {
