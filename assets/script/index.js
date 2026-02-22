@@ -16,10 +16,47 @@ const html = {
     }
     return document.querySelectorAll(query);
   },
+
+  getTagsSearchInput: () => document.querySelector("#tags-search"),
+  getCountriesSearchInput: () => document.querySelector("#countries-search"),
+
+  filterOptions: (query, selectorName, datasetName) => {
+    let rows = document.querySelectorAll(selectorName);
+    rows.forEach(row => {
+      if (!fuzzysearch(query, row.dataset[datasetName]) && query) {
+        row.style.display = "none";
+      } else {
+        row.style.display = "";
+      }
+    })
+  }
 };
 
 const FETCH_TIMEOUT = 150;
 
+// Source: https://github.com/bevacqua/fuzzysearch
+function fuzzysearch (needle, haystack) {
+  var hlen = haystack.length;
+  var nlen = needle.length;
+  if (nlen > hlen) {
+    return false;
+  }
+  if (nlen === hlen) {
+    return needle === haystack;
+  }
+  outer: for (var i = 0, j = 0; i < nlen; i++) {
+    var nch = needle.charCodeAt(i);
+    while (j < hlen) {
+      if (haystack.charCodeAt(j++) === nch) {
+        continue outer;
+      }
+    }
+    return false;
+  }
+  return true;
+}
+
+// On page load
 html.getToggleFiltersButton()?.addEventListener("click", (e) => {
   let filtersForm = html.getFiltersForm();
 
@@ -82,4 +119,12 @@ fieldsetCheckboxes.forEach(el => {
   let uncheckedBoxes = html.getFieldsetOptions(el.id, {"isChecked": false});
   let checkedBoxes = html.getFieldsetOptions(el.id, {"isChecked": true});
   el.indeterminate = uncheckedBoxes.length >= 1 && checkedBoxes.length >= 1
+});
+
+html.getTagsSearchInput().addEventListener("input", (e) => {
+  html.filterOptions(html.getTagsSearchInput().value?.toLowerCase(), ".tag[data-tag-name]", "tagName");
+});
+
+html.getCountriesSearchInput().addEventListener("input", (e) => {
+  html.filterOptions(html.getCountriesSearchInput().value?.toLowerCase(), ".country[data-country-name]", "countryName");
 });

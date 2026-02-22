@@ -42,29 +42,7 @@ Remote jobs for programming, quality assurance, design, and more
             <div>
               <label>
                 Min
-                <select name="min_salary">
-                  {%- if filters.min_salary is none -%}
-                    <option value="" selected="">
-                      --
-                    </option>
-                  {%- else -%}
-                    <option value="">
-                      --
-                    </option>
-                  {%- endif -%}
-
-                  {%- for figure in assigns.figures -%}
-                    {%- if filters.min_salary == figure -%}
-                      <option value="{{ figure }}" selected="">
-                        {{ figure|comma_split }}/year
-                      </option>
-                    {%- else -%}
-                      <option value="{{ figure }}">
-                        {{ figure|comma_split }}/year
-                      </option>
-                    {%- endif -%}
-                  {%- endfor -%}
-                </select>
+                <input type="number" name="min_salary" placeholder="80000">
               </label>
               <label>
                 <select name="currency">
@@ -170,10 +148,12 @@ Remote jobs for programming, quality assurance, design, and more
               </label>
             </legend>
 
+            <search><input id="tags-search" type="text" placeholder="Search tags"></search>
+
             <ul class="filter-fieldset-container">
               {% for tag in assigns.tags %}
                 <div>
-                  <label>
+                  <label class="tag" data-tag-name="{{ tag.name|lower }}">
                     {%- if filters.tag is not none and tag.name in filters.tag -%}
                       <input
                         type="checkbox"
@@ -188,7 +168,7 @@ Remote jobs for programming, quality assurance, design, and more
                         value="{{ tag.name }}"
                       >
                     {%- endif -%}
-                    {{ tag.name }}
+                    <span>{{ tag.name }}</span>
                   </label>
                 </div>
               {% endfor %}
@@ -243,10 +223,11 @@ Remote jobs for programming, quality assurance, design, and more
                 Countries
               </label>
             </legend>
+            <search><input id="countries-search" type="text" placeholder="Search countries"></search>
             <ul class="filter-fieldset-container">
               {% for country in assigns.countries %}
                 <li>
-                  <label>
+                  <label class="country" data-country-name="{{ country.name|lower }}">
                     {%- if filters.country is not none and country.iso2 in filters.country -%}
                       <input
                         type="checkbox"

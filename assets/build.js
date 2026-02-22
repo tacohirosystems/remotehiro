@@ -29,6 +29,7 @@ let result = await esbuild.build({
   outdir: "public",
   minify: true,
   treeShaking: true,
+  keepNames: false,
   plugins: [
     sassPlugin(),
     compressPlugin({

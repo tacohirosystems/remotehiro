@@ -39,10 +39,22 @@
   margin-right: 0.25rem;
 }
 
+.fieldset#salary input {
+  width: 100%;
+
+  @media (min-width: var.$bp-2xl) {
+    width: auto;
+  }
+}
+
 .fieldset#tag > .filter-fieldset-options {
   display: flex;
   flex-wrap: wrap;
   gap: 0.45rem;
+}
+
+.fieldset > search > input {
+  width: 100%;
 }
 
 .fieldset > .filter-fieldset-container {
