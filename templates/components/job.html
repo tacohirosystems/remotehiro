@@ -118,9 +118,15 @@
     </td>
 
     <td class="job__created_at">
-      <time datetime="{{ job.created_at }}" title="{{ job.created_at }}">
-        {{ job.relative_created_at|human_duration }} ago
-      </time>
+      {%- if job.bumped_at is not none -%}
+        <time datetime="{{ job.bumped_at }}" title="{{ job.bumped_at }}">
+          {{ job.relative_bumped_at|human_duration }} ago
+        </time>
+      {% else -%}
+        <time datetime="{{ job.created_at }}" title="{{ job.created_at }}">
+          {{ job.relative_created_at|human_duration }} ago
+        </time>
+      {%- endif -%}
     </td>
 
     <td class="job__mobile">

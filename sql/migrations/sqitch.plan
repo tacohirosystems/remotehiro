@@ -12,3 +12,4 @@
 20260118041617_jobs_add_deleted_at 2026-01-18T04:16:23Z sekun <sekun@litten> # Add deleted_at to jobs
 20260118174649_jobs_location_salaries_add_pk 2026-01-18T17:46:59Z sekun <sekun@litten> # Add pk to jobs_location_salaries
 20260123102636_add_business_regions 2026-01-23T10:26:43Z sekun <sekun@litten> # Add business regions
+20260222165028_add_relative_bumped_at 2026-02-22T16:50:37Z sekun <sekun@litten> # Add relative_bumped_at
