@@ -253,15 +253,15 @@ impl ToSql for JobId {
 }
 
 impl TryFrom<&rusqlite::Row<'_>> for Job {
-    type Error = rusqlite::Error;
+    type Error = crate::error::DbError;
 
     fn try_from(row: &rusqlite::Row<'_>) -> Result<Self, Self::Error> {
         // TODO: Remove unwraps for the sake of your sanity!!
-        let onsite_locations = serde_json::from_value(row.get("onsite_locations")?).unwrap();
-        let applicant_locations = serde_json::from_value(row.get("applicant_locations")?).unwrap();
-        let locations = serde_json::from_value(row.get("locations")?).unwrap();
-        let location_salaries = serde_json::from_value(row.get("location_salaries")?).unwrap();
-        let tags = serde_json::from_value(row.get("tags")?).unwrap();
+        let onsite_locations = serde_json::from_value(row.get("onsite_locations")?)?;
+        let applicant_locations = serde_json::from_value(row.get("applicant_locations")?)?;
+        let locations = serde_json::from_value(row.get("locations")?)?;
+        let location_salaries = serde_json::from_value(row.get("location_salaries")?)?;
+        let tags = serde_json::from_value(row.get("tags")?)?;
         let position = row.get("position")?;
         let addon_pinned_until = row.get::<&str, Option<OffsetDateTime>>("addon_pinned_until")?;
         let addon_basic_highlight = row.get::<&str, bool>("addon_basic_highlight")?;

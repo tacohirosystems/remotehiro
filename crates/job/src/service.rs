@@ -5,35 +5,43 @@ use deadpool_sqlite::InteractError;
 
 #[derive(Debug)]
 pub enum RepoError {
-    Db(rusqlite::Error),
+    Rusqlite(rusqlite::Error),
     Pool(deadpool_sqlite::PoolError),
     Interact(deadpool_sqlite::InteractError),
+    Db(model::error::DbError),
 }
 
 impl From<rusqlite::Error> for RepoError {
-    fn from(value: rusqlite::Error) -> Self {
-        RepoError::Db(value)
+    fn from(err: rusqlite::Error) -> Self {
+        RepoError::Rusqlite(err)
     }
 }
 
 impl From<deadpool_sqlite::PoolError> for RepoError {
-    fn from(value: deadpool_sqlite::PoolError) -> Self {
-        RepoError::Pool(value)
+    fn from(err: deadpool_sqlite::PoolError) -> Self {
+        RepoError::Pool(err)
     }
 }
 
 impl From<deadpool_sqlite::InteractError> for RepoError {
-    fn from(value: deadpool_sqlite::InteractError) -> Self {
-        RepoError::Interact(value)
+    fn from(err: deadpool_sqlite::InteractError) -> Self {
+        RepoError::Interact(err)
+    }
+}
+
+impl From<model::error::DbError> for RepoError {
+    fn from(err: model::error::DbError) -> Self {
+        RepoError::Db(err)
     }
 }
 
 impl Display for RepoError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            RepoError::Db(error) => write!(f, "{}", error),
+            RepoError::Rusqlite(error) => write!(f, "{}", error),
             RepoError::Pool(pool_error) => write!(f, "{}", pool_error),
             RepoError::Interact(interact_error) => write!(f, "{}", interact_error),
+            RepoError::Db(db_error) => write!(f, "{}", db_error),
         }
     }
 }
@@ -51,7 +59,7 @@ impl std::error::Error for RepoError {
 fn exec_list_jobs<'t>(
     conn: &mut rusqlite::Connection,
     filters: model::job::IndexFilters,
-) -> Result<Vec<model::job::Job>, rusqlite::Error> {
+) -> Result<Vec<model::job::Job>, model::error::DbError> {
     let txn = conn.transaction()?;
     let jobs = repository::list(
         &txn,
@@ -82,7 +90,7 @@ pub async fn list_jobs(
 
     let result = conn
         .interact(
-            move |conn: &mut rusqlite::Connection| -> Result<Vec<model::job::Job>, rusqlite::Error> {
+            move |conn: &mut rusqlite::Connection| -> Result<Vec<model::job::Job>, model::error::DbError> {
                 database::json_concat_array(&conn)?;
                 database::attach_warehouse_db(&conn, &warehouse_db_path)?;
 
@@ -100,7 +108,7 @@ fn exec_index_jobs_page<'t>(
     conn: &mut rusqlite::Connection,
     filters: model::job::IndexFilters,
     build_info: model::server::BuildInfo,
-) -> Result<model::job::IndexPage, rusqlite::Error> {
+) -> Result<model::job::IndexPage, model::error::DbError> {
     let txn = conn.transaction()?;
     let regions = location::repository::list_regions(&txn)?;
     let countries = location::repository::list_countries(&txn)?;
@@ -158,7 +166,7 @@ pub async fn index_jobs_page(
 
     let result = conn
         .interact(
-            move |conn| -> Result<model::job::IndexPage, rusqlite::Error> {
+            move |conn| -> Result<model::job::IndexPage, model::error::DbError> {
                 database::attach_warehouse_db(&conn, &warehouse_db_path)?;
                 database::json_concat_array(&conn)?;
                 let result = exec_index_jobs_page(conn, filters, build_info);
@@ -175,7 +183,7 @@ fn exec_get_job_page(
     conn: &mut rusqlite::Connection,
     job_id: model::job::JobId,
     build_info: model::server::BuildInfo,
-) -> Result<model::job::ViewPage, rusqlite::Error> {
+) -> Result<model::job::ViewPage, model::error::DbError> {
     let txn = conn.transaction()?;
     let job = repository::get(&txn, job_id)?;
     let page = model::job::ViewPage { job, build_info };
@@ -195,7 +203,7 @@ pub async fn get_job_page(
 
     let result = conn
         .interact(
-            move |conn| -> Result<model::job::ViewPage, rusqlite::Error> {
+            move |conn| -> Result<model::job::ViewPage, model::error::DbError> {
                 database::json_concat_array(&conn)?;
                 database::attach_warehouse_db(&conn, &warehouse_db_path)?;
                 let result = exec_get_job_page(conn, job_id, build_info);
@@ -251,14 +259,16 @@ pub async fn get_job(
     let conn = db_handle.get_read_conn().await?;
 
     let result = conn
-        .interact(move |conn| -> Result<model::job::Job, rusqlite::Error> {
-            database::attach_warehouse_db(&conn, &warehouse_db_path)?;
-            let txn = conn.transaction()?;
-            let result = repository::get(&txn, job_id);
-            txn.commit()?;
-            database::detach_warehouse_db(conn)?;
-            Ok(result?)
-        })
+        .interact(
+            move |conn| -> Result<model::job::Job, model::error::DbError> {
+                database::attach_warehouse_db(&conn, &warehouse_db_path)?;
+                let txn = conn.transaction()?;
+                let result = repository::get(&txn, job_id);
+                txn.commit()?;
+                database::detach_warehouse_db(conn)?;
+                Ok(result?)
+            },
+        )
         .await??;
     Ok(result)
 }

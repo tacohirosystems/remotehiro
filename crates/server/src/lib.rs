@@ -324,9 +324,10 @@ fn a11y_fg_color(color_hex: String) -> Option<i64> {
 
     match chunks.as_slice() {
         [r, g, b] => {
-            let r = i64::from_str_radix(r.as_str(), 16).unwrap();
-            let g = i64::from_str_radix(g.as_str(), 16).unwrap();
-            let b = i64::from_str_radix(b.as_str(), 16).unwrap();
+            let r = i64::from_str_radix(r.as_str(), 16).ok()?;
+            let g = i64::from_str_radix(g.as_str(), 16).ok()?;
+            let b = i64::from_str_radix(b.as_str(), 16).ok()?;
+
             Some((((r * 299) + (g * 587) + (b * 114)) / 1000 - 128) * -1000)
         }
         _ => None,

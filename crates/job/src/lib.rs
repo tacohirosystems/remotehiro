@@ -2,6 +2,7 @@ use std::{path::PathBuf, sync::Arc};
 
 use axum::{routing, Router};
 
+pub(crate) mod error;
 mod handler;
 pub mod repository;
 pub mod service;

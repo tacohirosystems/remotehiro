@@ -1,6 +1,7 @@
 pub mod category;
 pub mod company;
 pub mod employment;
+pub mod error;
 pub mod job;
 pub mod location;
 pub mod server;
