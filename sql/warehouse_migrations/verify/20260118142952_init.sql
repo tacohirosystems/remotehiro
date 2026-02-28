@@ -1,6 +1,6 @@
 -- Verify remotehiro-warehouse:20260118142952_init on sqlite
 
-BEGIN;
+BEGIN IMMEDIATE;
 
 -- XXX Add verifications here.
 

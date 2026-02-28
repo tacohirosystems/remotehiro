@@ -1,6 +1,6 @@
 -- Revert remotehiro:20260110124131_enriched_jobs_add_apply_email from sqlite
 
-BEGIN;
+BEGIN IMMEDIATE;
 
 DROP VIEW enriched_jobs;
 

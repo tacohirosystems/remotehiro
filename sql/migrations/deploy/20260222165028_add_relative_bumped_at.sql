@@ -1,6 +1,6 @@
 -- Deploy remotehiro:20260222165028_add_relative_bumped_at to sqlite
 
-BEGIN;
+BEGIN IMMEDIATE;
 
 DROP VIEW enriched_jobs;
 
