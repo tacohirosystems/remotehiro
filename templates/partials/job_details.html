@@ -68,6 +68,8 @@
             {{ location.country_flag }} {{ location.country_name }} (any)
           {%- elif location.business_region_name -%}
             {{ location.business_region_flag }} {{ location.business_region_name }} (any)
+          {%- elif location.subregion_name -%}
+            {{ location.subregion_name }}
           {%- else -%}
             {{ location.region_name }}
           {%- endif -%}
@@ -93,6 +95,8 @@
             {{ location_salary.country_name }} (any)
           {%- elif location_salary.country_name -%}
             {{ location_salary.country_flag }} {{ location_salary.country_name }} (any)
+          {%- elif location_salary.subregion_name -%}
+            {{ location_salary.subregion_name }}
           {%- else -%}
             {{ location_salary.region_name }}
           {%- endif -%}

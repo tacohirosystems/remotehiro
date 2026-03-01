@@ -7,6 +7,10 @@ pub struct RegionId(pub i64);
 
 #[derive(Clone, Copy, Debug, Deserialize, Serialize)]
 #[serde(transparent)]
+pub struct SubregionId(pub i64);
+
+#[derive(Clone, Copy, Debug, Deserialize, Serialize)]
+#[serde(transparent)]
 pub struct CountryId(pub i64);
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -33,6 +37,13 @@ impl FromSql for RegionId {
     fn column_result(value: rusqlite::types::ValueRef<'_>) -> rusqlite::types::FromSqlResult<Self> {
         let region_id = value.as_i64()?;
         Ok(RegionId(region_id))
+    }
+}
+
+impl FromSql for SubregionId {
+    fn column_result(value: rusqlite::types::ValueRef<'_>) -> rusqlite::types::FromSqlResult<Self> {
+        let subregion_id = value.as_i64()?;
+        Ok(SubregionId(subregion_id))
     }
 }
 

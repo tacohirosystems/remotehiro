@@ -97,9 +97,11 @@
                     {{ location.city_name }} ({{ location.country_iso2 }})
                   {%- elif location.country_name is not none -%}
                     {{ location.country_name }}
-                  {%- elif location.state_name is not none -%}
-                    {{ location.state_name or location.region_name }}
-                  {%- elif location.business_region_name is not none -%}
+                  {%- elif location.state_name -%}
+                    {{ location.state_name }}
+                  {%- elif location.subregion_name -%}
+                    {{ location.subregion_name }}
+                  {%- elif location.business_region_name -%}
                     {{ location.business_region_flag }} {{ location.business_region_name }}
                   {%- else -%}
                     {{ location.region_name }}

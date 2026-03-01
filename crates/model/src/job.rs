@@ -70,6 +70,7 @@ pub struct LocationSalary {
     pub region_name: Option<String>,
     pub business_region_name: Option<String>,
     pub business_region_flag: Option<String>,
+    pub subregion_name: Option<String>,
     pub country_id: Option<location::CountryId>,
     pub country_name: Option<String>,
     pub country_flag: Option<String>,

@@ -42,12 +42,12 @@ SELECT
   json_concat_array(
     json_group_array(
       DISTINCT
-      coalesce(aco.emoji || ' ' || aco.name, abr.emoji || ' ' || abr.iso2, ar.name)
+      coalesce(aco.emoji || ' ' || aco.name, abr.emoji || ' ' || abr.iso2, asr.name, ar.name)
       ORDER BY aco.name, ar.name
     ) FILTER (WHERE j.applicant_region_id IS NOT NULL),
     json_group_array(
       DISTINCT
-      coalesce(jco.emoji || ' ' || jco.name, jr.name)
+      coalesce(jco.emoji || ' ' || jco.name, jsr.name, jr.name)
       ORDER BY jco.name, jr.name
     ) FILTER (WHERE j.job_region_id IS NOT NULL)
   ) AS locations,
