@@ -25,7 +25,13 @@ data-migrations-down:
 data-migrations-add CHANGE:
   sqitch add --chdir sql/data_migrations {{ CHANGE }}
 
-recreate: data-migrations-down migrations-down migrations-up data-migrations-up
+recreate:
+  nix build .#remotehiro-migrator-source
+  nix build .#remotehiro-migrator
+  nix run .#remotehiro-migrator -- init
+  nix run .#remotehiro-migrator -- migrations up
+  nix run .#remotehiro-migrator -- data-migrations up
+  nix run .#remotehiro-migrator -- warehouse-migrations up
 
 bump-flake-rust-inputs:
   nix flake update nixpkgs crane fenix

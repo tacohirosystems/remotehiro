@@ -58,28 +58,33 @@
       {%- if job.is_worldwide -%}
         Worldwide
       {%- else -%}
-        {%- if job.onsite_locations|length > 0 and job.applicant_locations > 0 -%}
+        {%- if job.locations|length > 2 -%}
           <details>
             <summary>
-              {%- for location in job.locations -%}
+              {%- for location in job.locations[:2] -%}
                 {%- if loop.index0 > 0 -%}, {% endif -%}
                 {{ location }}
               {%- endfor -%}
+              , +{{ job.locations|length - 2 }} others
             </summary>
             <p>
-              <span>
-                <b>On-site</b>:
-                {% for location in job.onsite_locations %}
-                  {%- if loop.index0 > 0 -%}, {% endif -%}
-                  {%- if location.city_name is not none -%}
-                    {{ location.city_name }} ({{ location.country_iso2 }})
-                  {%- else -%}
-                    {{ location.country_name or location.state_name or location.region_name }}
-                  {%- endif -%}
-                {%- endfor -%}
-              </span>
+              {%- if job.onsite_locations|length > 0 -%}
+                <span>
+                  <b>On-site</b>:
+                  {% for location in job.onsite_locations %}
+                    {%- if loop.index0 > 0 -%}, {% endif -%}
+                    {%- if location.city_name is not none -%}
+                      {{ location.city_name }} ({{ location.country_iso2 }})
+                    {%- else -%}
+                      {{ location.country_name or location.state_name or location.region_name }}
+                    {%- endif -%}
+                  {%- endfor -%}
+                </span>
+              {%- endif -%}
 
-              <br>
+              {%- if job.onsite_locations|length > 0 and jobs.applicant_locations|length > 0 -%}
+                <br>
+              {%- endif -%}
 
               <span>
                 <b>
