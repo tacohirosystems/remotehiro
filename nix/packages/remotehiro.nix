@@ -1,4 +1,10 @@
-{ self, pkgs, version, remotehiro, remotehiro-static }: pkgs.symlinkJoin {
+{ self, pkgs, version, remotehiro, remotehiro-static }:
+let
+  fontsConf = pkgs.makeFontsConf {
+    fontDirectories = [ pkgs.inter ];
+  };
+in
+pkgs.symlinkJoin {
   name = "remotehiro";
   paths = [ remotehiro remotehiro-static ];
   buildInputs = [ pkgs.makeWrapper ];
@@ -9,6 +15,7 @@
       --set REMOTEHIRO_SERVER_TEMPLATES_PATH "${remotehiro-static}/templates" \
       --set REMOTEHIRO_SERVER_NIX_PATH "${remotehiro}/bin/remotehiro" \
       --set REMOTEHIRO_SERVER_COMMIT_HASH "${self.shortRev or "\"dev\""}" \
-      --set REMOTEHIRO_SERVER_VERSION "${version}"
+      --set REMOTEHIRO_SERVER_VERSION "${version}" \
+      --set FONTCONFIG_FILE "${fontsConf}"
   '';
 }
