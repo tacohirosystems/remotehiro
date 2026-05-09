@@ -27,12 +27,6 @@
           default = "/var/lib/remotehiro";
         };
 
-        databaseName = mkOption {
-          type = types.str;
-          description = "Database file name in the data directory.";
-          default = "remotehiro.db";
-        };
-
         user = mkOption {
           type = types.str;
           description = "User account under which remotehiro runs.";
@@ -72,15 +66,20 @@
           WorkingDirectory = cfg.stateDir;
           Restart = "always";
 
-          # Runtime directory and mode
-          RuntimeDirectory = "remotehiro";
-          RuntimeDirectoryMode = "0755";
-
           ReadWritePaths = [
             cfg.stateDir
           ];
 
           UMask = "0027";
+
+          # https://linux-audit.com/systemd/how-to-harden-a-systemd-service-unit/
+          KeyringMode = "private";
+          ProtectClock = true;
+          ProtectHostname = true;
+          ProtectKernelModules = true;
+          RestrictNamespaces = true;
+          ## Restrict service to a default set of system and network calls
+          SystemCallFilter = "@system-service @network-io";
 
           ProtectProc = "invisible";
           NoNewPrivileges = true;
@@ -91,12 +90,10 @@
           PrivateTmp = true;
           PrivateDevices = true;
           PrivateUsers = true;
-          ProtectHostname = true;
-          ProtectClock = true;
           ProtectKernelTunables = true;
-          ProtectKernelModules = true;
           ProtectKernelLogs = true;
           ProtectControlGroups = true;
+          CapabilityBoundingSet = "";
         };
 
         preStart = ''
