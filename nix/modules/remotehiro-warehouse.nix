@@ -33,14 +33,15 @@
       systemd.timers."remotehiro-warehouse" = {
         wantedBy = [ "timers.target" ];
           timerConfig = {
-            OnCalendar = "Mon..Fri 00:05";
+            OnCalendar = "Mon..Fri 00:30";
+            Persistent = true;
             Unit = "remotehiro-warehouse.service";
           };
       };
 
       systemd.services.remotehiro-warehouse = {
         script = ''
-          ${pkgs.curl}/bin/curl -i -X POST ${cfg.baseURL}/api/warehouse/generate \
+          ${pkgs.curl}/bin/curl -i --fail -X POST "${cfg.baseURL}/api/warehouse/generate" \
             -d '{"name": "JobsLocationSalariesInAltCurrencies"}' \
             -H 'Content-Type: application/json'
         '';
@@ -50,9 +51,16 @@
           User = cfg.user;
           Group = cfg.group;
 
-          # Runtime directory and mode
-          # RuntimeDirectory = "remotehiro";
-          # RuntimeDirectoryMode = "0755";
+          # https://linux-audit.com/systemd/how-to-harden-a-systemd-service-unit/
+          KeyringMode = "private";
+          ProtectClock = true;
+          ProtectHostname = true;
+          ProtectKernelModules = true;
+          MemoryDenyWriteExecute = true;
+          RestrictNamespaces = true;
+          ## Restrict service to a default set of system and network calls
+          SystemCallFilter = "@system-service @network-io";
+
           ReadWritePaths = [];
           UMask = "0027";
           ProtectProc = "invisible";
@@ -64,15 +72,17 @@
           PrivateTmp = true;
           PrivateDevices = true;
           PrivateUsers = true;
-          ProtectHostname = true;
-          ProtectClock = true;
+          CapabilityBoundingSet = "";
+
+          # Restrict to localhost calls since this only needs to trigger a local
+          # endpoint once in a while.
+          IPAddressAllow = "localhost";
+          IPAddressDeny = "any";
+          RestrictAddressFamilies = "AF_INET";
+
           ProtectKernelTunables = true;
-          ProtectKernelModules = true;
           ProtectKernelLogs = true;
           ProtectControlGroups = true;
-
-          # Prevents the service from automatically starting on rebuild. See https://discourse.nixos.org/t/how-to-prevent-custom-systemd-service-from-restarting-on-nixos-rebuild-switch/43431
-          # RemainAfterExit = true;
       };
     };
 
@@ -89,6 +99,5 @@
     };
 
     environment.systemPackages = [ pkgs.curl ];
-    systemd.packages = [ pkgs.curl ];
   };
 }
