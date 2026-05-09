@@ -43,3 +43,5 @@ time.workspace = true
 pulldown-cmark.workspace = true
 ammonia.workspace = true
 slug.workspace = true
+
+resvg.workspace = true

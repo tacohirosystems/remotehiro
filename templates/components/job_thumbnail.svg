@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#ffffff" rx="0" ry="0"/>
+  <text x="64" y="80" font-family="sans-serif" font-size="28" font-weight="600" fill="#374151">
+    {{ job.company_name|escape }} is hiring
+  </text>
+  <rect x="1010" y="52" width="130" height="40" rx="8" fill="#059669"/>
+  <text x="1075" y="79" font-family="sans-serif" font-size="18" font-weight="600" fill="#ffffff" text-anchor="middle">
+    {{ job.employment_type }}
+  </text>
+  <line x1="64" y1="110" x2="1136" y2="110" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="64" y="190" font-family="sans-serif" font-size="48" font-weight="700" fill="#111827">
+    {{ job.position|escape }}
+  </text>
+  {%- if job.onsite_locations %}
+  <g transform="translate(64, 250)">
+    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z" fill="#6b7280" transform="translate(0, -4)"/>
+    <text x="30" y="16" font-family="sans-serif" font-size="24" font-weight="400" fill="#6b7280">
+      Onsite:
+      {% for location in job.onsite_locations[:3] -%}
+        {%- if not loop.first %}, {% endif -%}
+        {{ location.country_name|escape }}
+      {%- endfor -%}
+      {%- if job.onsite_locations|length > 3 -%}
+        , +{{ job.onsite_locations|length - 3 }} more
+      {%- endif -%}
+    </text>
+  </g>
+  {%- endif %}
+  <g transform="translate(64, {% if job.onsite_locations %}295{% else %}250{% endif %})">
+    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" fill="#6b7280" transform="translate(0, -4)"/>
+    <text x="30" y="16" font-family="sans-serif" font-size="24" font-weight="400" fill="#6b7280">
+      {%- if job.is_worldwide -%}
+      Remote (Worldwide)
+      {%- elif job.applicant_locations -%}
+      Remote:
+        {% for location in job.applicant_locations[:3] -%}
+          {%- if not loop.first %}, {% endif -%}
+          {{ location.country_name|default(location.business_region_name|default(location.subregion_name|default(location.region_name)))|escape }}
+        {%- endfor -%}
+        {%- if job.applicant_locations|length > 3 -%}
+          , +{{ job.applicant_locations|length - 3 }} more
+        {%- endif -%}
+      {%- elif job.is_remote -%}
+      Remote
+      {%- endif -%}
+    </text>
+  </g>
+  <g transform="translate(64, {% if job.onsite_locations %}355{% else %}310{% endif %})">
+    <circle cx="12" cy="8" r="11" stroke="#6b7280" stroke-width="2" fill="none"/>
+    <text x="12" y="13" font-family="sans-serif" font-size="14" font-weight="600" fill="#6b7280" text-anchor="middle">$</text>
+    <text x="30" y="16" font-family="sans-serif" font-size="24" font-weight="500" fill="#374151">
+      {%- if job.location_salaries -%}
+        {{ job.location_salaries[0].min_salary_formatted }}
+        {%- if job.location_salaries[0].max_salary %} - {{ job.location_salaries[0].max_salary_formatted }}{%- endif %} / year
+      {%- endif -%}
+    </text>
+  </g>
+  <g transform="translate(64, {% if job.onsite_locations %}410{% else %}370{% endif %})">
+    <rect x="0" y="0" width="80" height="34" rx="6" fill="#f3f4f6"/>
+    <text x="40" y="23" font-family="sans-serif" font-size="16" font-weight="500" fill="#374151" text-anchor="middle">Rust</text>
+    <rect x="92" y="0" width="120" height="34" rx="6" fill="#f3f4f6"/>
+    <text x="152" y="23" font-family="sans-serif" font-size="16" font-weight="500" fill="#374151" text-anchor="middle">PostgreSQL</text>
+    <rect x="224" y="0" width="80" height="34" rx="6" fill="#f3f4f6"/>
+    <text x="264" y="23" font-family="sans-serif" font-size="16" font-weight="500" fill="#374151" text-anchor="middle">Linux</text>
+  </g>
+  <line x1="64" y1="520" x2="1136" y2="520" stroke="#e5e7eb" stroke-width="1"/>
+  <g transform="translate(64, 550)">
+    <rect x="0" y="2" width="20" height="18" rx="3" stroke="#9ca3af" stroke-width="1.5" fill="none"/>
+    <line x1="0" y1="8" x2="20" y2="8" stroke="#9ca3af" stroke-width="1.5"/>
+    <line x1="6" y1="0" x2="6" y2="5" stroke="#9ca3af" stroke-width="1.5"/>
+    <line x1="14" y1="0" x2="14" y2="5" stroke="#9ca3af" stroke-width="1.5"/>
+    <text x="28" y="17" font-family="sans-serif" font-size="18" font-weight="400" fill="#000000">
+      {%- if job.updated_at -%}
+        {{ job.updated_at|dateformat(format="full") }}
+      {%- endif -%}
+    </text>
+  </g>
+  <text x="1136" y="570" font-family="sans-serif" font-size="24" font-weight="700" fill="#111827" text-anchor="end">
+    RemoteHiro.com
+  </text>
+</svg>

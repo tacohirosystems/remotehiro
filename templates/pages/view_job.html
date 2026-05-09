@@ -32,14 +32,14 @@
   <meta property="og:url" content="https://www.remotehiro.com/jobs/{{ assigns.job.position|slugify }}-{{ assigns.job.id }}">
   <meta property="og:title" content="{{ assigns.job.position }} (Starting {{ assigns.job.location_salaries[0].min_salary_formatted }}) at {{ assigns.job.company_name }}">
   <meta property="og:description" content="{{ assigns.job.company_name }} is hiring a {{ assigns.job.position }} (Starting {{ assigns.job.location_salaries[0].min_salary_formatted }}).">
-  <meta property="og:image" content="https://www.remotehiro.com/assets/images/thumbnail.jpg">
+  <meta property="og:image" content="https://www.remotehiro.com/jobs/{{ assigns.job.position|slugify }}-{{ assigns.job.id }}/thumb.png">
 
   <!-- X (Twitter) -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:url" content="https://www.remotehiro.com/jobs/{{ assigns.job.position|slugify }}-{{ assigns.job.id }}">
   <meta name="twitter:title" content="{{ assigns.job.position }} (Starting {{ assigns.job.location_salaries[0].min_salary_formatted }}) at {{ assigns.job.company_name }}">
   <meta name="twitter:description" content="{{ assigns.job.company_name }} is hiring a {{ assigns.job.position }} (Starting {{ assigns.job.location_salaries[0].min_salary_formatted }}).">
-  <meta name="twitter:image" content="https://www.remotehiro.com/assets/images/thumbnail.jpg">
+  <meta name="twitter:image" content="https://www.remotehiro.com/jobs/{{ assigns.job.position|slugify }}-{{ assigns.job.id }}/thumb.png">
 
   <link rel="canonical" href="https://www.remotehiro.com/jobs/{{ assigns.job.position|slugify }}-{{ assigns.job.id }}">
 
@@ -55,9 +55,7 @@
       "name": {{ assigns.job.company_name|tojson }}
     },
     "employmentType": {{ assigns.job.employment_type|upper|replace("-", "_")|tojson }},
-    {%- if assigns.job.apply_url is not none %}
-    "directApply": true,
-    {%- endif %}
+    "directApply": false,
     {%- if assigns.job.location_salaries|length > 0 %}
     "baseSalary": {
       "@type": "MonetaryAmount",
@@ -72,7 +70,7 @@
       }
     },
     {%- endif %}
-    {%- if assigns.job.is_remote or assigns.job.is_worldwide %}
+    {%- if assigns.job.is_remote %}
     "jobLocationType": "TELECOMMUTE",
     {%- endif %}
     {%- if assigns.job.onsite_locations|length > 0 %}

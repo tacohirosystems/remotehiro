@@ -1,4 +1,5 @@
 use axum::response::Html;
+use resvg::{tiny_skia, usvg};
 
 pub fn render_index(
     template_handle: &su_template::Handle,
@@ -101,4 +102,25 @@ pub fn render_index_rss(
     let utf8 = channel.write_to(Vec::new())?;
     let xml = String::from_utf8(utf8)?;
     Ok(xml)
+}
+
+pub fn render_job_thumbnail(template_handle: &su_template::Handle, job: model::job::Job) -> Result<Vec<u8>, ()> {
+    let context = minijinja::context! {job => job};
+    println!("hi");
+    let svg = template_handle.render_template(context, "components/job_thumbnail.svg").unwrap();
+    println!("bye");
+
+    let mut opt = usvg::Options {
+        ..usvg::Options::default()
+    };
+
+    println!("SVG: {svg}");
+    opt.fontdb_mut().load_system_fonts();
+    let tree = usvg::Tree::from_data(&svg.as_bytes(), &opt).unwrap();
+
+    let pixmap_size = tree.size().to_int_size();
+    let mut pixmap = tiny_skia::Pixmap::new(pixmap_size.width(), pixmap_size.height()).unwrap();
+    resvg::render(&tree, tiny_skia::Transform::default(), &mut pixmap.as_mut());
+
+    Ok(pixmap.encode_png().unwrap())
 }
