@@ -38,6 +38,7 @@
         wantedBy = [ "timers.target" ];
           timerConfig = {
             OnCalendar = "Mon..Fri 00:00";
+            Persistent = true;
             Unit = "remotehiro-moneyman.service";
           };
       };
@@ -54,15 +55,24 @@
 
           WorkingDirectory = cfg.stateDir;
 
-          # Runtime directory and mode
-          RuntimeDirectory = "remotehiro";
-          RuntimeDirectoryMode = "0755";
-
           ReadWritePaths = [
             cfg.stateDir
           ];
 
           UMask = "0027";
+
+          # https://linux-audit.com/systemd/how-to-harden-a-systemd-service-unit/
+          KeyringMode = "private";
+          ProtectClock = true;
+          ProtectHostname = true;
+          ProtectKernelModules = true;
+          MemoryDenyWriteExecute = true;
+          RestrictNamespaces = true;
+          ## Restrict service to a default set of system and network calls
+          SystemCallFilter = "@system-service @network-io";
+
+          # Restrict to ECB network calls
+          RestrictAddressFamilies = [ "AF_INET" "AF_INET6" ];
 
           ProtectProc = "invisible";
           NoNewPrivileges = true;
@@ -73,15 +83,10 @@
           PrivateTmp = true;
           PrivateDevices = true;
           PrivateUsers = true;
-          ProtectHostname = true;
-          ProtectClock = true;
           ProtectKernelTunables = true;
-          ProtectKernelModules = true;
           ProtectKernelLogs = true;
           ProtectControlGroups = true;
-
-          # Prevents the service from automatically starting on rebuild. See https://discourse.nixos.org/t/how-to-prevent-custom-systemd-service-from-restarting-on-nixos-rebuild-switch/43431
-          RemainAfterExit = true;
+          CapabilityBoundingSet = "";
       };
     };
 
