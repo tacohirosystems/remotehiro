@@ -119,7 +119,9 @@ pub struct Job {
     pub is_remote: bool,
     pub relative_created_at: Duration,
     pub relative_bumped_at: Option<Duration>,
+    #[serde(with = "time::serde::iso8601")]
     pub created_at: OffsetDateTime,
+    #[serde(with = "time::serde::iso8601")]
     pub updated_at: OffsetDateTime,
     pub bumped_at: Option<OffsetDateTime>,
 }
@@ -265,7 +267,9 @@ impl TryFrom<&rusqlite::Row<'_>> for Job {
         let location_salaries = serde_json::from_value(row.get("location_salaries")?)?;
         let tags = serde_json::from_value(row.get("tags")?)?;
         let position = row.get("position")?;
-        let relative_bumped_at = row.get::<&str, Option<f64>>("relative_bumped_at")?.map(Duration::seconds_f64);
+        let relative_bumped_at = row
+            .get::<&str, Option<f64>>("relative_bumped_at")?
+            .map(Duration::seconds_f64);
         let addon_pinned_until = row.get::<&str, Option<OffsetDateTime>>("addon_pinned_until")?;
         let addon_basic_highlight = row.get::<&str, bool>("addon_basic_highlight")?;
         let addon_custom_highlight = row.get::<&str, Option<String>>("addon_custom_highlight")?;

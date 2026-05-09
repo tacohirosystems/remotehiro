@@ -68,6 +68,7 @@ minijinja = { version = "2.12", default-features = false, features = [
   "loader",
   "multi_template",
   "builtins",
+  "json",
 ] }
 minijinja-contrib = { version = "2.12", features = ["datetime"] }
 pulldown-cmark = { version = "0.13" }

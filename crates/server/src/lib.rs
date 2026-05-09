@@ -5,8 +5,8 @@ use std::{
     sync::Arc,
 };
 
-use axum::extract::Request;
-use minijinja::Value;
+use axum::{extract::Request, http::StatusCode, response::IntoResponse, routing};
+use minijinja::{context, Value};
 use serde::Deserialize;
 use time::Duration;
 use tokio::signal;
@@ -137,6 +137,50 @@ impl std::fmt::Display for ServerError<'_> {
     }
 }
 
+#[derive(Debug)]
+pub enum SitemapError {
+    Repo(job::service::RepoError),
+    Template(su_template::RenderTemplateError),
+}
+
+impl std::error::Error for SitemapError {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        None
+    }
+
+    fn cause(&self) -> Option<&dyn std::error::Error> {
+        self.source()
+    }
+}
+
+impl From<job::service::RepoError> for SitemapError {
+    fn from(value: job::service::RepoError) -> Self {
+        Self::Repo(value)
+    }
+}
+
+impl From<su_template::RenderTemplateError> for SitemapError {
+    fn from(value: su_template::RenderTemplateError) -> Self {
+        Self::Template(value)
+    }
+}
+
+impl std::fmt::Display for SitemapError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            SitemapError::Repo(repo_error) => write!(f, "{}", repo_error),
+            SitemapError::Template(render_template_error) => write!(f, "{}", render_template_error),
+        }
+    }
+}
+
+impl IntoResponse for SitemapError {
+    fn into_response(self) -> axum::response::Response {
+        tracing::error!("failed to get_index. reason: {:#?}", self);
+        (StatusCode::INTERNAL_SERVER_ERROR, "Something went wrong").into_response()
+    }
+}
+
 pub async fn run<'k>() -> Result<(), ServerError<'k>> {
     // Server configuration
     let server_config = ServerConfig::from_env()?;
@@ -206,13 +250,48 @@ pub async fn run<'k>() -> Result<(), ServerError<'k>> {
 
     let warehouse_env = warehouse::HandlerEnv::new(
         warehouse_db_handle.clone(),
-        database_path,
+        database_path.clone(),
         currency_exchange_db_path,
     );
 
     let app = axum::Router::new()
         .merge(job_env.routes())
         .merge(warehouse_env.routes())
+        // TODO: Move somewhere when this can be grouped with other things maybe.
+        .route(
+            "/sitemap.xml",
+            routing::get(async move || -> Result<String, SitemapError> {
+                let jobs = job::service::list_jobs(
+                    &db_handle,
+                    model::job::IndexFilters {
+                        query: None,
+                        min_salary: None,
+                        tags: None,
+                        employment_types: None,
+                        regions: None,
+                        subregions: None,
+                        countries: None,
+                        categories: None,
+                        currency: None,
+                    },
+                    warehouse_db_path,
+                ).await?;
+
+                let context = context!(jobs => jobs);
+
+                let xml = template_handle
+                    .clone()
+                    .render_template(context, "sitemap.xml")?;
+
+                Ok(xml)
+            }),
+        )
+        .route(
+            "/robots.txt",
+            routing::get(|| async {
+                "User-agent: *\nAllow: /\n\nSitemap: https://www.remotehiro.com/sitemap.xml\n"
+            }),
+        )
         .layer(
             tower_http::trace::TraceLayer::new_for_http().make_span_with(|request: &Request<_>| {
                 tracing::info_span!(
