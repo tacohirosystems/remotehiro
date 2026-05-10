@@ -1,6 +1,6 @@
 -- Verify remotehiro:20260111084106_job_location_salaries_init on sqlite
 
-BEGIN IMMEDIATE;
+BEGIN;
 
 -- XXX Add verifications here.
 

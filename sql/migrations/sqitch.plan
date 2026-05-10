@@ -13,3 +13,4 @@
 20260118174649_jobs_location_salaries_add_pk 2026-01-18T17:46:59Z sekun <sekun@litten> # Add pk to jobs_location_salaries
 20260123102636_add_business_regions 2026-01-23T10:26:43Z sekun <sekun@litten> # Add business regions
 20260222165028_add_relative_bumped_at 2026-02-22T16:50:37Z sekun <sekun@litten> # Add relative_bumped_at
+20260510062811_add_indices 2026-05-10T06:28:22Z sekun <sekun@litten> # Add indices for job_id

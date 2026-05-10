@@ -1,6 +1,6 @@
 -- Verify remotehiro:20260106200236_add_regions on sqlite
 
-BEGIN IMMEDIATE;
+BEGIN;
 
 -- XXX Add verifications here.
 
