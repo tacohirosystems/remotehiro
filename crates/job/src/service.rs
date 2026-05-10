@@ -86,13 +86,11 @@ pub async fn list_jobs(
     filters: model::job::IndexFilters,
     warehouse_db_path: PathBuf,
 ) -> Result<Vec<model::job::Job>, RepoError> {
-    let conn = db_handle.get_write_conn().await?;
+    let conn = db_handle.get_read_conn().await?;
 
     let result = conn
         .interact(
             move |conn: &mut rusqlite::Connection| -> Result<Vec<model::job::Job>, model::error::DbError> {
-                database::json_concat_array(&conn)?;
-                database::json_array_intersect(&conn)?;
                 database::attach_warehouse_db(&conn, &warehouse_db_path)?;
 
                 let result = exec_list_jobs(conn, filters);
@@ -163,14 +161,12 @@ pub async fn index_jobs_page(
     filters: model::job::IndexFilters,
     warehouse_db_path: PathBuf,
 ) -> Result<model::job::IndexPage, RepoError> {
-    let conn = db_handle.get_write_conn().await?;
+    let conn = db_handle.get_read_conn().await?;
 
     let result = conn
         .interact(
             move |conn| -> Result<model::job::IndexPage, model::error::DbError> {
                 database::attach_warehouse_db(&conn, &warehouse_db_path)?;
-                database::json_concat_array(&conn)?;
-                database::json_array_intersect(&conn)?;
                 let result = exec_index_jobs_page(conn, filters, build_info);
                 database::detach_warehouse_db(conn)?;
                 result
@@ -201,13 +197,11 @@ pub async fn get_job_page(
     build_info: model::server::BuildInfo,
     job_id: model::job::JobId,
 ) -> Result<model::job::ViewPage, RepoError> {
-    let conn = db_handle.get_write_conn().await?;
+    let conn = db_handle.get_read_conn().await?;
 
     let result = conn
         .interact(
             move |conn| -> Result<model::job::ViewPage, model::error::DbError> {
-                database::json_concat_array(&conn)?;
-                database::json_array_intersect(&conn)?;
                 database::attach_warehouse_db(&conn, &warehouse_db_path)?;
                 let result = exec_get_job_page(conn, job_id, build_info);
                 database::detach_warehouse_db(conn)?;

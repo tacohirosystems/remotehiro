@@ -40,7 +40,7 @@ rusqlite = { version = "0.37", features = [
   "time",
   "functions",
 ] }
-su_sqlite = { git = "https://github.com/sekunho/pkg.git", branch = "main" }
+su_sqlite = { git = "https://forgejo.quoll-owl.ts.net/tacohirosystems/pkg.git", branch = "main" }
 deadpool-sqlite = { version = "0.12" }
 
 # Web

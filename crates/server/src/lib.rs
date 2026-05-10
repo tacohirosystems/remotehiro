@@ -96,7 +96,7 @@ impl ServerConfig {
 pub enum ServerError<'k> {
     Io(std::io::Error),
     Config(ServerConfigError<'k>),
-    SqliteHandle(deadpool_sqlite::CreatePoolError),
+    SqliteHandle(su_sqlite::handle::CreateHandleError),
 }
 
 impl std::error::Error for ServerError<'_> {
@@ -121,9 +121,9 @@ impl<'k> From<ServerConfigError<'k>> for ServerError<'k> {
     }
 }
 
-impl From<deadpool_sqlite::CreatePoolError> for ServerError<'_> {
-    fn from(value: deadpool_sqlite::CreatePoolError) -> Self {
-        Self::SqliteHandle(value)
+impl<'k> From<su_sqlite::handle::CreateHandleError> for ServerError<'k> {
+    fn from(err: su_sqlite::handle::CreateHandleError) -> Self {
+        Self::SqliteHandle(err)
     }
 }
 
@@ -194,7 +194,15 @@ pub async fn run<'k>() -> Result<(), ServerError<'k>> {
             })?,
         );
 
-    let db_handle = su_sqlite::handle::Handle::builder(database_path.clone()).build()?;
+    let mut db_handle = su_sqlite::handle::Handle::builder(database_path.clone());
+
+    db_handle.set_post_create(Some(|conn| {
+        database::json_concat_array(&conn)?;
+        database::json_array_intersect(&conn)?;
+        Ok(())
+    }));
+
+    let db_handle = db_handle.build()?;
     let db_handle = Arc::new(db_handle);
 
     // Warehouse database handle
