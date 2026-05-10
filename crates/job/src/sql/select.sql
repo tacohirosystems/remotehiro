@@ -38,11 +38,17 @@ SELECT
     )
     ORDER BY j.currency_id ASC
   ) AS location_salaries,
-  json_group_array(DISTINCT j.tag_name) FILTER (WHERE j.tag_id IS NOT NULL) AS tags,
+  json_group_array(DISTINCT j.tag_name) FILTER (WHERE j.tag_id IS NOT NULL)
+    AS tags,
   json_concat_array(
     json_group_array(
       DISTINCT
-      coalesce(aco.emoji || ' ' || aco.name, abr.emoji || ' ' || abr.iso2, asr.name, ar.name)
+      coalesce(
+        aco.emoji || ' ' || aco.name,
+        abr.emoji || ' ' || abr.iso2,
+        asr.name,
+        ar.name
+      )
       ORDER BY aco.name, ar.name
     ) FILTER (WHERE j.applicant_region_id IS NOT NULL),
     json_group_array(
@@ -91,126 +97,136 @@ SELECT
   ) FILTER (WHERE j.applicant_region_id IS NOT NULL) AS applicant_locations,
   j.job_region_id IS NULL AND j.applicant_region_id IS NULL AS is_worldwide
 FROM
-  enriched_jobs j,
-  json_each(coalesce(?1->>'categories', '[null]')) filter_category_names,
-  json_each(coalesce(?1->>'employment_types', '[null]')) filter_employment_types,
-  json_each(coalesce(?1->>'tags', '[null]')) filter_tag_names
-LEFT JOIN regions jr
+  enriched_jobs AS j,
+  json_each(coalesce(?1 ->> 'categories', '[null]')) AS filter_category_names,
+  json_each(coalesce(?1 ->> 'employment_types', '[null]')) AS filter_employment_types,
+  json_each(coalesce(?1 ->> 'tags', '[null]')) AS filter_tag_names
+LEFT JOIN regions AS jr
   ON j.job_region_id = jr.region_id
-LEFT JOIN subregions jsr
+LEFT JOIN subregions AS jsr
   ON j.job_subregion_id = jsr.subregion_id
-LEFT JOIN countries jco
+LEFT JOIN countries AS jco
   ON j.job_country_id = jco.country_id
-LEFT JOIN states js
+LEFT JOIN states AS js
   ON j.job_state_id = js.state_id
-LEFT JOIN cities jci
+LEFT JOIN cities AS jci
   ON j.job_city_id = jci.city_id
-LEFT JOIN regions ar
+LEFT JOIN regions AS ar
   ON j.applicant_region_id = ar.region_id
-LEFT JOIN business_regions abr
+LEFT JOIN business_regions AS abr
   ON j.applicant_business_region_id = abr.business_region_id
-LEFT JOIN subregions asr
+LEFT JOIN subregions AS asr
   ON j.applicant_subregion_id = asr.subregion_id
-LEFT JOIN countries aco
+LEFT JOIN countries AS aco
   ON j.applicant_country_id = aco.country_id
-LEFT JOIN states ast
+LEFT JOIN states AS ast
   ON j.applicant_state_id = ast.state_id
-LEFT JOIN cities aci
+LEFT JOIN cities AS aci
   ON j.applicant_city_id = aci.city_id
-LEFT JOIN warehouse.jobs_location_salaries_in_alt_currencies jls_alt
-  ON j.job_id = jls_alt.job_id
-  AND j.job_location_salary_id = jls_alt.job_location_salary_id
+LEFT JOIN warehouse.jobs_location_salaries_in_alt_currencies AS jls_alt
+  ON
+    j.job_id = jls_alt.job_id
+    AND j.job_location_salary_id = jls_alt.job_location_salary_id
 WHERE
   CASE
-    WHEN ?1->>'job_id' IS NOT NULL THEN j.job_id = ?1->>'job_id'
+    WHEN ?1 ->> 'job_id' IS NOT NULL THEN j.job_id = ?1 ->> 'job_id'
     ELSE TRUE
   END
-  AND CASE
-    WHEN ?1->>'query' IS NOT NULL THEN
-      j.position LIKE '%' || (?1->>'query') || '%'
-    ELSE TRUE
-  END
-  AND CASE
-    WHEN filter_category_names.value IS NOT NULL THEN
-      j.category_name = filter_category_names.value
-    ELSE TRUE
-  END
-  AND CASE
-    WHEN filter_employment_types.value IS NOT NULL THEN
-      j.employment_type = filter_employment_types.value
-    ELSE TRUE
-  END
-  AND CASE
-    WHEN ?1->>'min_salary' IS NOT NULL THEN
-      CASE ?1->>'currency'
-        WHEN 'JPY' THEN
-          jls_alt.min_salary_jpy >= (?1->>'min_salary')
-          OR jls_alt.max_salary_jpy >= (?1->>'min_salary')
-        WHEN 'USD' THEN
-          jls_alt.min_salary_usd >= (?1->>'min_salary')
-          OR jls_alt.max_salary_usd >= (?1->>'min_salary')
-        WHEN 'GBP' THEN
-          jls_alt.min_salary_gbp >= (?1->>'min_salary')
-          OR jls_alt.max_salary_gbp >= (?1->>'min_salary')
-        WHEN 'CAD' THEN
-          jls_alt.min_salary_cad >= (?1->>'min_salary')
-          OR jls_alt.max_salary_cad >= (?1->>'min_salary')
-        WHEN 'AUD' THEN
-          jls_alt.min_salary_aud >= (?1->>'min_salary')
-          OR jls_alt.max_salary_aud >= (?1->>'min_salary')
-        ELSE
-          jls_alt.min_salary_eur >= (?1->>'min_salary')
-          OR jls_alt.max_salary_eur >= (?1->>'min_salary')
-      END
-    ELSE TRUE
-  END
-  AND CASE
-    WHEN filter_tag_names.value IS NOT NULL THEN
-    j.tag_name = filter_tag_names.value
-    ELSE
-      TRUE
-  END
-GROUP BY j.job_id
-HAVING EXISTS (
-  SELECT 1
-  FROM
-    json_each(coalesce(nullif(onsite_locations, '[]'), '[null]')) jl,
-    json_each(coalesce(nullif(applicant_locations, '[]'), '[null]')) al,
-    json_each(coalesce(?1->>'regions', '[null]')) filter_region_names,
-    json_each(coalesce(?1->>'subregions', '[null]')) filter_subregion_names,
-    json_each(coalesce(?1->>'countries_iso2', '[null]')) filter_country_iso2
-  LEFT JOIN countries country_filters
-    ON country_filters.iso2 = filter_country_iso2.value
-  WHERE
-    CASE
-      WHEN filter_region_names.value IS NOT NULL AND NOT is_worldwide THEN
-        json_extract(jl.value, '$.region_name') = filter_region_names.value
-        OR json_extract(al.value, '$.region_name') = filter_region_names.value
-      ELSE TRUE
-    END
-    AND CASE
-      WHEN filter_country_iso2.value IS NOT NULL AND NOT is_worldwide THEN
-        json_extract(jl.value, '$.country_iso2') = filter_country_iso2.value
-        OR CASE
-          WHEN json_extract(al.value, '$.country_id') IS NOT NULL THEN
-            json_extract(al.value, '$.country_iso2') = filter_country_iso2.value
-          WHEN json_extract(al.value, '$.subregion_id') IS NOT NULL THEN
-            json_extract(al.value, '$.subregion_id') = country_filters.subregion_id
-          WHEN json_extract(al.value, '$.business_region_id') IS NOT NULL THEN
-            json_extract(al.value, '$.business_region_id') = country_filters.business_region_id
-          WHEN json_extract(al.value, '$.region_id') IS NOT NULL THEN
-            json_extract(al.value, '$.region_id') = country_filters.region_id
-          ELSE FALSE
+  AND (
+    (?1 ->> 'query') IS NULL OR j.position LIKE '%' || (?1 ->> 'query') || '%'
+  )
+  AND (
+    filter_category_names.value IS NULL
+    OR j.category_name = filter_category_names.value
+  )
+  AND (
+    filter_employment_types.value IS NULL
+    OR j.employment_type = filter_employment_types.value
+  )
+  AND (
+    ?1 ->> 'min_salary' IS NULL
+    OR (
+      SELECT 1
+      FROM warehouse.jobs_location_salaries_in_alt_currencies AS alt_currencies
+      WHERE
+        alt_currencies.job_id = j.job_id
+        AND CASE ?1 ->> 'currency'
+          WHEN 'JPY'
+            THEN
+              jls_alt.min_salary_jpy >= (?1 ->> 'min_salary')
+              OR jls_alt.max_salary_jpy >= (?1 ->> 'min_salary')
+          WHEN 'USD'
+            THEN
+              jls_alt.min_salary_usd >= (?1 ->> 'min_salary')
+              OR jls_alt.max_salary_usd >= (?1 ->> 'min_salary')
+          WHEN 'GBP'
+            THEN
+              jls_alt.min_salary_gbp >= (?1 ->> 'min_salary')
+              OR jls_alt.max_salary_gbp >= (?1 ->> 'min_salary')
+          WHEN 'CAD'
+            THEN
+              jls_alt.min_salary_cad >= (?1 ->> 'min_salary')
+              OR jls_alt.max_salary_cad >= (?1 ->> 'min_salary')
+          WHEN 'AUD'
+            THEN
+              jls_alt.min_salary_aud >= (?1 ->> 'min_salary')
+              OR jls_alt.max_salary_aud >= (?1 ->> 'min_salary')
+          ELSE
+            jls_alt.min_salary_eur >= (?1 ->> 'min_salary')
+            OR jls_alt.max_salary_eur >= (?1 ->> 'min_salary')
         END
-      ELSE TRUE
-    END
+    )
+  )
+  AND (filter_tag_names.value IS NULL OR j.tag_name = filter_tag_names.value)
   AND j.deleted_at IS NULL
-)
+GROUP BY j.job_id
+HAVING
+  EXISTS (
+    SELECT 1
+    FROM
+      json_each(coalesce(nullif(onsite_locations, '[]'), '[null]')) AS jl,
+      json_each(coalesce(nullif(applicant_locations, '[]'), '[null]')) AS al,
+      json_each(coalesce(?1 ->> 'regions', '[null]')) AS filter_region_names,
+      json_each(coalesce(?1 ->> 'subregions', '[null]')),
+      json_each(coalesce(?1 ->> 'countries_iso2', '[null]'))
+        AS filter_country_iso2
+    LEFT JOIN countries AS country_filters
+      ON filter_country_iso2.value = country_filters.iso2
+    WHERE
+      CASE
+        WHEN filter_region_names.value IS NOT NULL AND NOT is_worldwide
+          THEN
+            json_extract(jl.value, '$.region_name') = filter_region_names.value
+            OR json_extract(al.value, '$.region_name')
+            = filter_region_names.value
+        ELSE TRUE
+      END
+      AND CASE
+        WHEN filter_country_iso2.value IS NOT NULL AND NOT is_worldwide
+          THEN
+            json_extract(jl.value, '$.country_iso2') = filter_country_iso2.value
+            OR CASE
+              WHEN json_extract(al.value, '$.country_id') IS NOT NULL
+                THEN
+                  json_extract(al.value, '$.country_iso2')
+                  = filter_country_iso2.value
+              WHEN json_extract(al.value, '$.subregion_id') IS NOT NULL
+                THEN
+                  json_extract(al.value, '$.subregion_id')
+                  = country_filters.subregion_id
+              WHEN json_extract(al.value, '$.business_region_id') IS NOT NULL
+                THEN
+                  json_extract(al.value, '$.business_region_id')
+                  = country_filters.business_region_id
+              WHEN json_extract(al.value, '$.region_id') IS NOT NULL
+                THEN
+                  json_extract(al.value, '$.region_id')
+                  = country_filters.region_id
+              ELSE FALSE
+            END
+        ELSE TRUE
+      END
+  )
 ORDER BY
   j.addon_pinned_until IS NOT NULL DESC,
-  CASE
-    WHEN j.bumped_at IS NOT NULL
-      THEN
-        j.bumped_at
-    ELSE j.created_at
-  END DESC;
+  coalesce(j.bumped_at, j.created_at) DESC;
