@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::{collections::HashSet, path::PathBuf};
 
 use rusqlite::{functions::FunctionFlags, Connection};
 use serde_json::json;
@@ -35,6 +35,32 @@ pub fn attach_warehouse_db(conn: &Connection, db_path: &PathBuf) -> Result<usize
     conn.execute(
         "ATTACH DATABASE $1 AS warehouse;",
         rusqlite::params![db_path.to_str()],
+    )
+}
+
+pub fn json_array_intersect(conn: &Connection) -> Result<(), rusqlite::Error> {
+    conn.create_scalar_function(
+        "json_array_intersect",
+        2,
+        FunctionFlags::SQLITE_UTF8 | FunctionFlags::SQLITE_DETERMINISTIC,
+        |ctx| -> Result<bool, rusqlite::Error> {
+            let json_a = ctx.get::<serde_json::Value>(0)?;
+            let json_b = ctx.get::<serde_json::Value>(1)?;
+
+            let mut array_a = match json_a {
+                serde_json::Value::Array(values) => Ok(values),
+                _ => Err(rusqlite::Error::InvalidQuery),
+            }?;
+
+            let mut array_b = match json_b {
+                serde_json::Value::Array(values) => Ok(values),
+                _ => Err(rusqlite::Error::InvalidQuery),
+            }?;
+
+            let has_intersection = array_a.iter().any(|a| array_b.contains(a));
+
+            Ok(has_intersection)
+        },
     )
 }
 

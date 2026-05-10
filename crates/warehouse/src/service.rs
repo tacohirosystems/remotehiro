@@ -58,8 +58,31 @@ pub async fn generate_jobs_location_salaries_in_alt_currencies(
         database::attach_remotehiro_db(&conn, &remotehiro_db_path)?;
         database::attach_currency_exchange_db(&conn, &currency_exchange_db_path)?;
         let txn = conn.transaction()?;
-        let result = repository::bulk_delete(&txn, job_ids.clone()).and_then(|_| {
+        let result = repository::bulk_delete_jobs_location_salaries_in_alt_currencies(&txn, job_ids.clone()).and_then(|_| {
             repository::generate_jobs_location_salaries_in_alt_currencies(&txn, job_ids)
+        });
+        txn.commit()?;
+        database::detach_remotehiro_db(conn)?;
+        database::detach_currency_exchange_db(conn)?;
+        result
+    })
+    .await??;
+    Ok(())
+}
+
+pub async fn generate_jobs_tags(
+    warehouse_db_handle: &su_sqlite::handle::Handle,
+    remotehiro_db_path: PathBuf,
+    currency_exchange_db_path: PathBuf,
+    job_ids: Option<Vec<model::job::JobId>>,
+) -> Result<(), RepoError> {
+    let conn = warehouse_db_handle.get_write_conn().await?;
+    conn.interact(move |conn| -> Result<(), rusqlite::Error> {
+        database::attach_remotehiro_db(&conn, &remotehiro_db_path)?;
+        database::attach_currency_exchange_db(&conn, &currency_exchange_db_path)?;
+        let txn = conn.transaction()?;
+        let result = repository::bulk_delete_jobs_tags(&txn, job_ids.clone()).and_then(|_| {
+            repository::generate_jobs_tags(&txn, job_ids)
         });
         txn.commit()?;
         database::detach_remotehiro_db(conn)?;

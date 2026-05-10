@@ -38,8 +38,7 @@ SELECT
     )
     ORDER BY j.currency_id ASC
   ) AS location_salaries,
-  json_group_array(DISTINCT j.tag_name) FILTER (WHERE j.tag_id IS NOT NULL)
-    AS tags,
+  jt.tags,
   json_concat_array(
     json_group_array(
       DISTINCT
@@ -96,11 +95,7 @@ SELECT
     )
   ) FILTER (WHERE j.applicant_region_id IS NOT NULL) AS applicant_locations,
   j.job_region_id IS NULL AND j.applicant_region_id IS NULL AS is_worldwide
-FROM
-  enriched_jobs AS j,
-  json_each(coalesce(?1 ->> 'categories', '[null]')) AS filter_category_names,
-  json_each(coalesce(?1 ->> 'employment_types', '[null]')) AS filter_employment_types,
-  json_each(coalesce(?1 ->> 'tags', '[null]')) AS filter_tag_names
+FROM enriched_jobs AS j
 LEFT JOIN regions AS jr
   ON j.job_region_id = jr.region_id
 LEFT JOIN subregions AS jsr
@@ -123,22 +118,21 @@ LEFT JOIN states AS ast
   ON j.applicant_state_id = ast.state_id
 LEFT JOIN cities AS aci
   ON j.applicant_city_id = aci.city_id
+LEFT JOIN warehouse.jobs_tags AS jt
+  ON j.job_id = jt.job_id
 WHERE
-  CASE
-    WHEN ?1 ->> 'job_id' IS NOT NULL THEN j.job_id = ?1 ->> 'job_id'
-    ELSE TRUE
-  END
+  ((?1->>'job_id') IS NULL OR j.job_id = (?1->>'job_id'))
   AND (
     (?1 ->> 'query') IS NULL OR j.position LIKE '%' || (?1 ->> 'query') || '%'
   )
   AND (
-    filter_category_names.value IS NULL
-    OR j.category_name = filter_category_names.value
+    ?1->>'categories' IS NULL OR EXISTS (
+      SELECT 1
+      FROM json_each(?1->>'categories') c
+      WHERE c.value = j.category_name
+    )
   )
-  AND (
-    filter_employment_types.value IS NULL
-    OR j.employment_type = filter_employment_types.value
-  )
+  AND (?1->>'tags' IS NULL OR json_array_intersect(?1->>'tags', jt.tags))
   AND (
     ?1 ->> 'min_salary' IS NULL
     OR (
@@ -173,7 +167,6 @@ WHERE
         END
     )
   )
-  AND (filter_tag_names.value IS NULL OR j.tag_name = filter_tag_names.value)
   AND j.deleted_at IS NULL
 GROUP BY j.job_id
 HAVING

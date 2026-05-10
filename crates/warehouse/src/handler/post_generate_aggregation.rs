@@ -39,6 +39,7 @@ pub async fn run(
 
     match payload {
         model::warehouse::GenerateAggregation::JobsLocationSalariesInAltCurrencies { job_ids } => {
+            tracing::info!("Generating JobsLocationSalariesInAltCurrencies...");
             service::generate_jobs_location_salaries_in_alt_currencies(
                 &env.warehouse_database,
                 env.remotehiro_db_path.clone(),
@@ -47,6 +48,16 @@ pub async fn run(
             )
             .await?;
         }
+        model::warehouse::GenerateAggregation::JobsTags { job_ids } => {
+            tracing::info!("Generating JobsTags...");
+            service::generate_jobs_tags(
+                &env.warehouse_database,
+                env.remotehiro_db_path.clone(),
+                env.currency_exchange_db_path.clone(),
+                job_ids,
+            )
+            .await?;
+        },
     }
 
     Ok(StatusCode::OK)

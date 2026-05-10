@@ -14,3 +14,4 @@
 20260123102636_add_business_regions 2026-01-23T10:26:43Z sekun <sekun@litten> # Add business regions
 20260222165028_add_relative_bumped_at 2026-02-22T16:50:37Z sekun <sekun@litten> # Add relative_bumped_at
 20260510062811_add_indices 2026-05-10T06:28:22Z sekun <sekun@litten> # Add indices for job_id
+20260510091331_job_view_remove_tags 2026-05-10T09:13:49Z sekun <sekun@litten> # Remove tags from job view

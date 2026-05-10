@@ -4,3 +4,4 @@
 
 20260118142952_init 2026-01-18T14:30:49Z sekun <sekun@litten> # Initialize warehouse.job_salaries_in_alt_currencies
 20260510063015_add_index 2026-05-10T06:30:24Z sekun <sekun@litten> # Add index for job_id and location salary
+20260510072553_add_tags_aggregation 2026-05-10T07:26:03Z sekun <sekun@litten> # Add job tags aggregation

@@ -6,4 +6,7 @@ pub enum GenerateAggregation {
     JobsLocationSalariesInAltCurrencies {
         job_ids: Option<Vec<crate::job::JobId>>,
     },
+    JobsTags {
+        job_ids: Option<Vec<crate::job::JobId>>,
+    },
 }
