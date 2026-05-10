@@ -118,6 +118,9 @@
               esbuild
               git
               pkgs.autoPatchelfHook
+            ] ++ pkgs.lib.optionals pkgs.stdenv.isLinux [
+              pkgs.mold
+              pkgs.clang
             ];
           };
 

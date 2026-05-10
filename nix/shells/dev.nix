@@ -39,6 +39,7 @@
     statix
 
     clang
+    mold
 
     cloc
 
