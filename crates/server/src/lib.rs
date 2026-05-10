@@ -275,7 +275,8 @@ pub async fn run<'k>() -> Result<(), ServerError<'k>> {
                         currency: None,
                     },
                     warehouse_db_path,
-                ).await?;
+                )
+                .await?;
 
                 let context = context!(jobs => jobs);
 

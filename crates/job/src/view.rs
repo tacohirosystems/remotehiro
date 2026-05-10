@@ -104,10 +104,15 @@ pub fn render_index_rss(
     Ok(xml)
 }
 
-pub fn render_job_thumbnail(template_handle: &su_template::Handle, job: model::job::Job) -> Result<Vec<u8>, ()> {
+pub fn render_job_thumbnail(
+    template_handle: &su_template::Handle,
+    job: model::job::Job,
+) -> Result<Vec<u8>, ()> {
     let context = minijinja::context! {job => job};
     println!("hi");
-    let svg = template_handle.render_template(context, "components/job_thumbnail.svg").unwrap();
+    let svg = template_handle
+        .render_template(context, "components/job_thumbnail.svg")
+        .unwrap();
     println!("bye");
 
     let mut opt = usvg::Options {

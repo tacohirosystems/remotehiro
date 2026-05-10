@@ -71,10 +71,7 @@ pub async fn run(
     let job_id = slug.split('-').collect::<Vec<&str>>();
     let mut res_headers = HeaderMap::new();
 
-    res_headers.insert(
-        "content-type",
-        HeaderValue::from_static("image/png"),
-    );
+    res_headers.insert("content-type", HeaderValue::from_static("image/png"));
 
     let job_id = job_id
         .last()

@@ -39,7 +39,10 @@ impl HandlerEnv {
         axum::Router::new()
             .route("/", routing::get(handler::get_index::run))
             .route("/jobs.rss", routing::get(handler::get_index_rss::run))
-            .route("/jobs/{slug}/thumb.png", routing::get(handler::get_job_thumbnail::run))
+            .route(
+                "/jobs/{slug}/thumb.png",
+                routing::get(handler::get_job_thumbnail::run),
+            )
             .route("/jobs/{slug}", routing::get(handler::get_job::run))
             .with_state(Arc::new(self))
     }
