@@ -123,10 +123,6 @@ LEFT JOIN states AS ast
   ON j.applicant_state_id = ast.state_id
 LEFT JOIN cities AS aci
   ON j.applicant_city_id = aci.city_id
-LEFT JOIN warehouse.jobs_location_salaries_in_alt_currencies AS jls_alt
-  ON
-    j.job_id = jls_alt.job_id
-    AND j.job_location_salary_id = jls_alt.job_location_salary_id
 WHERE
   CASE
     WHEN ?1 ->> 'job_id' IS NOT NULL THEN j.job_id = ?1 ->> 'job_id'
@@ -153,27 +149,27 @@ WHERE
         AND CASE ?1 ->> 'currency'
           WHEN 'JPY'
             THEN
-              jls_alt.min_salary_jpy >= (?1 ->> 'min_salary')
-              OR jls_alt.max_salary_jpy >= (?1 ->> 'min_salary')
+              alt_currencies.min_salary_jpy >= (?1 ->> 'min_salary')
+              OR alt_currencies.max_salary_jpy >= (?1 ->> 'min_salary')
           WHEN 'USD'
             THEN
-              jls_alt.min_salary_usd >= (?1 ->> 'min_salary')
-              OR jls_alt.max_salary_usd >= (?1 ->> 'min_salary')
+              alt_currencies.min_salary_usd >= (?1 ->> 'min_salary')
+              OR alt_currencies.max_salary_usd >= (?1 ->> 'min_salary')
           WHEN 'GBP'
             THEN
-              jls_alt.min_salary_gbp >= (?1 ->> 'min_salary')
-              OR jls_alt.max_salary_gbp >= (?1 ->> 'min_salary')
+              alt_currencies.min_salary_gbp >= (?1 ->> 'min_salary')
+              OR alt_currencies.max_salary_gbp >= (?1 ->> 'min_salary')
           WHEN 'CAD'
             THEN
-              jls_alt.min_salary_cad >= (?1 ->> 'min_salary')
-              OR jls_alt.max_salary_cad >= (?1 ->> 'min_salary')
+              alt_currencies.min_salary_cad >= (?1 ->> 'min_salary')
+              OR alt_currencies.max_salary_cad >= (?1 ->> 'min_salary')
           WHEN 'AUD'
             THEN
-              jls_alt.min_salary_aud >= (?1 ->> 'min_salary')
-              OR jls_alt.max_salary_aud >= (?1 ->> 'min_salary')
+              alt_currencies.min_salary_aud >= (?1 ->> 'min_salary')
+              OR alt_currencies.max_salary_aud >= (?1 ->> 'min_salary')
           ELSE
-            jls_alt.min_salary_eur >= (?1 ->> 'min_salary')
-            OR jls_alt.max_salary_eur >= (?1 ->> 'min_salary')
+            alt_currencies.min_salary_eur >= (?1 ->> 'min_salary')
+            OR alt_currencies.max_salary_eur >= (?1 ->> 'min_salary')
         END
     )
   )
