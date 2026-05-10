@@ -2,8 +2,8 @@ SELECT
   t.tag_id AS id,
   name,
   count(jt.job_id) AS count
-FROM tags t
-LEFT JOIN jobs_tags jt
+FROM tags AS t
+LEFT JOIN jobs_tags AS jt
   ON t.tag_id = jt.tag_id
 GROUP BY
   t.tag_id,
