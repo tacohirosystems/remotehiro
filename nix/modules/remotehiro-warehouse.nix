@@ -42,7 +42,7 @@
       systemd.services.remotehiro-warehouse = {
         script = ''
           ${pkgs.curl}/bin/curl -i --fail -X POST "${cfg.baseURL}/api/warehouse/generate" \
-            -d '{"name": "JobsLocationSalariesInAltCurrencies"}' \
+            -d '[{"name": "JobsLocationSalariesInAltCurrencies"}, {"name": "JobsTags"}]' \
             -H 'Content-Type: application/json'
         '';
 
