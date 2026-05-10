@@ -38,7 +38,7 @@ SELECT
     )
     ORDER BY j.currency_id ASC
   ) AS location_salaries,
-  jt.tags,
+  coalesce(jt.tags, '[]') AS tags,
   json_concat_array(
     json_group_array(
       DISTINCT
@@ -132,7 +132,7 @@ WHERE
       WHERE c.value = j.category_name
     )
   )
-  AND (?1->>'tags' IS NULL OR json_array_intersect(?1->>'tags', jt.tags))
+  AND (?1->>'tags' IS NULL OR json_array_intersect(?1->>'tags', coalesce(jt.tags, '[]')))
   AND (
     ?1 ->> 'min_salary' IS NULL
     OR (

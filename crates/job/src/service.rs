@@ -86,7 +86,7 @@ pub async fn list_jobs(
     filters: model::job::IndexFilters,
     warehouse_db_path: PathBuf,
 ) -> Result<Vec<model::job::Job>, RepoError> {
-    let conn = db_handle.get_read_conn().await?;
+    let conn = db_handle.get_write_conn().await?;
 
     let result = conn
         .interact(
@@ -163,7 +163,7 @@ pub async fn index_jobs_page(
     filters: model::job::IndexFilters,
     warehouse_db_path: PathBuf,
 ) -> Result<model::job::IndexPage, RepoError> {
-    let conn = db_handle.get_read_conn().await?;
+    let conn = db_handle.get_write_conn().await?;
 
     let result = conn
         .interact(
@@ -201,7 +201,7 @@ pub async fn get_job_page(
     build_info: model::server::BuildInfo,
     job_id: model::job::JobId,
 ) -> Result<model::job::ViewPage, RepoError> {
-    let conn = db_handle.get_read_conn().await?;
+    let conn = db_handle.get_write_conn().await?;
 
     let result = conn
         .interact(
