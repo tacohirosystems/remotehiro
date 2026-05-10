@@ -32,7 +32,7 @@ const html = {
   }
 };
 
-const FETCH_TIMEOUT = 1000;
+const FETCH_TIMEOUT = 400;
 
 // Source: https://github.com/bevacqua/fuzzysearch
 function fuzzysearch (needle, haystack) {
@@ -74,6 +74,9 @@ html.getFiltersForm()?.addEventListener("input", (e) => {
     clearTimeout(submitTicker);
   }
 
+  let isTextInput = e.target.type == "text" || e.target.type == "search" || e.target.type == "number";
+  let delay = isTextInput ? FETCH_TIMEOUT : 0;
+
   let form = html.getFiltersForm();
   // If it's a fieldset checkbox, then we toggle all of the checkboxes in the
   // fieldset whose `name` matches the ID.
@@ -87,7 +90,7 @@ html.getFiltersForm()?.addEventListener("input", (e) => {
     fieldsetCheckbox.indeterminate = uncheckedBoxes.length >= 1 && checkedBoxes.length >= 1;
     fieldsetCheckbox.checked = checkedBoxes.length >= 1 && uncheckedBoxes.length == 0;
   }
-  submitTicker = setTimeout(() => submitForm(toFormData(form), form.action), FETCH_TIMEOUT);
+  submitTicker = setTimeout(() => submitForm(toFormData(form), form.action), delay);
 });
 
 function toFormData(form) {
