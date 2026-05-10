@@ -9,7 +9,3 @@ version.workspace = true
 license.workspace = true
 
 [dependencies]
-model.workspace = true
-
-rusqlite.workspace = true
-deadpool-sqlite.workspace = true

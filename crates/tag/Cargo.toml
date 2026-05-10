@@ -14,4 +14,3 @@ model.workspace = true
 serde_json.workspace = true
 
 rusqlite.workspace = true
-deadpool-sqlite.workspace = true

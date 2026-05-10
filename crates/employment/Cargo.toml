@@ -12,4 +12,3 @@ license.workspace = true
 model.workspace = true
 
 rusqlite.workspace = true
-deadpool-sqlite.workspace = true
