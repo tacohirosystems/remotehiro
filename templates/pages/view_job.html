@@ -88,14 +88,20 @@
       }{{ "," if not loop.last else "" }}
       {%- endfor %}
     ],
-    {%- elif assigns.job.applicant_locations|length > 0 and not assigns.job.is_worldwide %}
+    {%- endif %}
+    {%- if assigns.job.is_remote and assigns.job.is_worldwide %}
+    "applicantLocationRequirements": {
+      "@type": "Country",
+      "name": "Worldwide"
+    },
+    {%- elif assigns.job.is_remote and assigns.job.applicant_locations|length > 0 %}
     "applicantLocationRequirements": [
-      {%- for location in assigns.job.applicant_locations %}
+      {%- for location in assigns.job.applicant_locations -%}
       {
         "@type": {% if location.country_name is not none %}"Country"{% else %}"AdministrativeArea"{% endif %},
         "name": {{ (location.country_name or location.subregion_name or location.business_region_name or location.region_name)|tojson }}
       }{{ "," if not loop.last else "" }}
-      {%- endfor %}
+      {%- endfor -%}
     ],
     {%- endif %}
     "url": "https://www.remotehiro.com/jobs/{{ assigns.job.position|slugify }}-{{ assigns.job.id }}"
