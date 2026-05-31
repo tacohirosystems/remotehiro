@@ -74,6 +74,8 @@ fn exec_list_jobs<'t>(
             categories: filters.categories,
             job_id: None,
             currency: filters.currency,
+            job_type: filters.job_type,
+            is_delisted: Some(false),
         },
     )?;
     txn.commit()?;
@@ -129,6 +131,8 @@ fn exec_index_jobs_page<'t>(
             categories: filters.categories,
             job_id: None,
             currency: filters.currency,
+            job_type: filters.job_type,
+            is_delisted: Some(false),
         },
     )
     .inspect_err(|err| tracing::error!("failed! {}", err))?;

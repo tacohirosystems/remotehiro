@@ -6,17 +6,31 @@ pub fn list<'t>(
     txn: &Transaction<'t>,
     filters: model::job::RepoIndexFilters,
 ) -> Result<Vec<model::job::Job>, DbError> {
+    let t_prepare = std::time::Instant::now();
     let mut statement = txn.prepare(crate::sql::SELECT_JOBS_QUERY)?;
+    tracing::info!(
+        "timing: repository::list prepare = {:?}",
+        t_prepare.elapsed()
+    );
 
     tracing::info!("{:#?}", json!(filters));
 
-    let jobs = statement
-        .query_and_then(rusqlite::params![json!(filters)], |row| {
-            model::job::Job::try_from(row)
-        })?
-        .collect::<Result<Vec<model::job::Job>, _>>()?;
+    let t_query = std::time::Instant::now();
+    let rows = statement.query_and_then(rusqlite::params![json!(filters)], |row| {
+        model::job::Job::try_from(row)
+    })?;
+    tracing::info!(
+        "timing: repository::list query (pre-collect) = {:?}",
+        t_query.elapsed()
+    );
 
-    tracing::info!("{:#?}", jobs);
+    let t_collect = std::time::Instant::now();
+    let jobs = rows.collect::<Result<Vec<model::job::Job>, _>>()?;
+    tracing::info!(
+        "timing: repository::list collect (SQL exec + deserialize {} rows) = {:?}",
+        jobs.len(),
+        t_collect.elapsed()
+    );
 
     Ok(jobs)
 }
@@ -37,6 +51,8 @@ pub fn get<'t>(
         query: None,
         min_salary: None,
         currency: None,
+        job_type: None,
+        is_delisted: None,
     };
 
     let mut jobs = statement
@@ -45,8 +61,6 @@ pub fn get<'t>(
         })?
         .collect::<Result<Vec<model::job::Job>, _>>()
         .inspect_err(|err| tracing::error!("{:#?}", err))?;
-
-    tracing::info!("{:#?}", jobs);
 
     match jobs.len() {
         i if i > 1 => Err(DbError::Rusqlite(

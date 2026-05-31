@@ -23,7 +23,8 @@ pub fn json_concat_array(conn: &Connection) -> Result<(), rusqlite::Error> {
             }?;
 
             array_a.append(&mut array_b);
-            array_a.dedup();
+            let mut seen = HashSet::new();
+            array_a.retain(|v| seen.insert(v.to_string()));
             let array = json!(array_a);
 
             Ok(rusqlite::types::Value::Text(array.to_string()))

@@ -18,8 +18,9 @@ pub fn render_index(
 pub fn render_index_partial(
     template_handle: &su_template::Handle,
     jobs: Vec<model::job::Job>,
+    filters: model::job::IndexFilters,
 ) -> Result<Html<String>, su_template::RenderTemplateError> {
-    let context = minijinja::context! {jobs => jobs};
+    let context = minijinja::context! {jobs => jobs, filters => filters};
     let html = template_handle.render_template(context, "partials/job_entries.html")?;
     Ok(Html(html))
 }
@@ -119,7 +120,6 @@ pub fn render_job_thumbnail(
         ..usvg::Options::default()
     };
 
-    println!("SVG: {svg}");
     opt.fontdb_mut().load_system_fonts();
     let tree = usvg::Tree::from_data(&svg.as_bytes(), &opt).unwrap();
 

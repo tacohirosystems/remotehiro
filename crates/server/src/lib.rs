@@ -281,6 +281,7 @@ pub async fn run<'k>() -> Result<(), ServerError<'k>> {
                         countries: None,
                         categories: None,
                         currency: None,
+                        job_type: None,
                     },
                     warehouse_db_path,
                 )
