@@ -1,5 +1,5 @@
-import * as esbuild from 'esbuild'
-import { sassPlugin } from 'esbuild-sass-plugin'
+import * as esbuild from "esbuild"
+import { sassPlugin } from "esbuild-sass-plugin"
 import { compressPlugin } from "@liber-ufpe/esbuild-plugin-compress"
 
 let result = await esbuild.build({
@@ -7,6 +7,7 @@ let result = await esbuild.build({
   entryPoints: [
     "assets/css/**/*.scss",
     "assets/images/**/*.jpg",
+    "assets/images/**/*.webp",
     "assets/css/**/*.css",
     "assets/css/**/*.css.gz",
     "assets/css/**/*.css.br",
@@ -16,19 +17,21 @@ let result = await esbuild.build({
     "assets/favicon/*",
   ],
   loader: {
-    '.br': 'copy',
-    '.gz': 'copy',
-    '.min.js': 'copy',
-    '.png': 'copy',
-    '.jpg': 'copy',
-    '.ico': 'copy',
-    '.webmanifest': 'copy',
-    '.svg': 'copy',
-    '.webp': 'copy',
+    ".br": "copy",
+    ".gz": "copy",
+    ".min.js": "copy",
+    ".png": "copy",
+    ".jpg": "copy",
+    ".ico": "copy",
+    ".webmanifest": "copy",
+    ".svg": "copy",
+    ".webp": "copy",
   },
   outdir: "public",
   minify: true,
   treeShaking: true,
+  bundle: true,
+  format: "esm",
   keepNames: false,
   plugins: [
     sassPlugin(),
