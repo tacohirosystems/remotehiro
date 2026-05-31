@@ -15,3 +15,8 @@
 20260222165028_add_relative_bumped_at 2026-02-22T16:50:37Z sekun <sekun@litten> # Add relative_bumped_at
 20260510062811_add_indices 2026-05-10T06:28:22Z sekun <sekun@litten> # Add indices for job_id
 20260510091331_job_view_remove_tags 2026-05-10T09:13:49Z sekun <sekun@litten> # Remove tags from job view
+20260521170150_remove_formatted_columns 2026-05-21T17:01:57Z sekun <sekun@blaziken> # Remove formatted salary columns in view
+20260522205825_add_job_columns 2026-05-22T20:58:31Z sekun <sekun@blaziken> # Add equity, and source columns.
+20260522210751_update_view 2026-05-22T21:08:02Z sekun <sekun@blaziken> # Update enriched_jobs view
+20260527125157_add_more_job_cols 2026-05-27T12:52:09Z sekun <sekun@blaziken> # Add extra job data
+20260527151000_update_view 2026-05-27T15:10:00Z sekun <sekun@blaziken> # Update enriched_jobs view with description_html, posted_at, delisted_at
