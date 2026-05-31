@@ -1,4 +1,36 @@
-INSERT INTO jobs_location_salaries_in_alt_currencies (
+WITH rates AS (
+  SELECT
+    date,
+    json_object(
+      'EUR', 1.0,
+      'USD', rates.USD,
+      'JPY', rates.JPY,
+      'GBP', rates.GBP,
+      'AUD', rates.AUD,
+      'CAD', rates.CAD
+    ) AS json
+  FROM currency_exchange.rates rates
+  ORDER BY date DESC
+  LIMIT 1
+), salaries_in_eur AS MATERIALIZED (
+  SELECT
+    jls.job_id,
+    jls.job_location_salary_id,
+    rates.date,
+    rates.json AS rates_json,
+    jls.min_salary / json_extract(rates.json, '$.' || from_currency.code) AS min_salary_eur,
+    jls.max_salary / json_extract(rates.json, '$.' || from_currency.code) AS max_salary_eur
+  FROM
+    remotehiro.jobs_location_salaries AS jls,
+    rates,
+    json_each(coalesce(?1, '[null]')) AS job_ids
+  INNER JOIN remotehiro.currencies AS from_currency
+    ON jls.currency_id = from_currency.currency_id
+  WHERE
+    (job_ids.value IS NULL OR jls.job_id = job_ids.value)
+    AND json_extract(rates.json, '$.' || from_currency.code) IS NOT NULL
+)
+INSERT OR REPLACE INTO jobs_location_salaries_in_alt_currencies (
   job_id,
   job_location_salary_id,
   date,
@@ -16,128 +48,20 @@ INSERT INTO jobs_location_salaries_in_alt_currencies (
   max_salary_cad
 )
 SELECT
-  jls.job_id,
-  jls.job_location_salary_id,
-  ler.date,
+  job_id,
+  job_location_salary_id,
+  date,
 
-  -- To EUR
-  cast(CASE c.code
-    WHEN 'EUR' THEN jls.min_salary
-    WHEN 'JPY' THEN jls.min_salary / ler.jpy
-    WHEN 'USD' THEN jls.min_salary / ler.usd
-    WHEN 'GBP' THEN jls.min_salary / ler.gbp
-    WHEN 'AUD' THEN jls.min_salary / ler.aud
-    WHEN 'CAD' THEN jls.min_salary / ler.cad
-  END AS INTEGER) AS min_salary_eur,
-  cast(CASE c.code
-    WHEN 'EUR' THEN jls.max_salary
-    WHEN 'JPY' THEN jls.max_salary / ler.jpy
-    WHEN 'USD' THEN jls.max_salary / ler.usd
-    WHEN 'GBP' THEN jls.max_salary / ler.gbp
-    WHEN 'AUD' THEN jls.max_salary / ler.aud
-    WHEN 'CAD' THEN jls.max_salary / ler.cad
-  END AS INTEGER) AS max_salary_eur,
-
-  -- To JPY
-  cast(CASE c.code
-    WHEN 'EUR' THEN jls.min_salary * ler.jpy
-    WHEN 'JPY' THEN jls.min_salary
-    WHEN 'USD' THEN (jls.min_salary / ler.usd) * ler.jpy
-    WHEN 'GBP' THEN (jls.min_salary / ler.gbp) * ler.gbp
-    WHEN 'AUD' THEN (jls.min_salary / ler.aud) * ler.aud
-    WHEN 'CAD' THEN (jls.min_salary / ler.cad) * ler.cad
-  END AS INTEGER) AS min_salary_jpy,
-  cast(CASE c.code
-    WHEN 'EUR' THEN jls.max_salary * ler.jpy
-    WHEN 'JPY' THEN jls.max_salary
-    WHEN 'USD' THEN (jls.max_salary / ler.usd) * ler.jpy
-    WHEN 'GBP' THEN (jls.max_salary / ler.gbp) * ler.jpy
-    WHEN 'AUD' THEN (jls.max_salary / ler.aud) * ler.jpy
-    WHEN 'CAD' THEN (jls.max_salary / ler.cad) * ler.jpy
-  END AS INTEGER) AS max_salary_jpy,
-
-  -- To USD
-  cast(CASE c.code
-    WHEN 'EUR' THEN jls.min_salary * ler.usd
-    WHEN 'JPY' THEN (jls.min_salary / ler.jpy) * ler.usd
-    WHEN 'USD' THEN jls.min_salary
-    WHEN 'GBP' THEN (jls.min_salary / ler.gbp) * ler.usd
-    WHEN 'AUD' THEN (jls.min_salary / ler.aud) * ler.usd
-    WHEN 'CAD' THEN (jls.min_salary / ler.cad) * ler.usd
-  END AS INTEGER) AS min_salary_usd,
-  cast(CASE c.code
-    WHEN 'EUR' THEN jls.max_salary * ler.usd
-    WHEN 'JPY' THEN (jls.max_salary / ler.jpy) * ler.usd
-    WHEN 'USD' THEN jls.max_salary
-    WHEN 'GBP' THEN (jls.max_salary / ler.gbp) * ler.usd
-    WHEN 'AUD' THEN (jls.max_salary / ler.aud) * ler.usd
-    WHEN 'CAD' THEN (jls.max_salary / ler.cad) * ler.usd
-  END AS INTEGER) AS max_salary_usd,
-
-  -- To GBP
-  cast(CASE c.code
-    WHEN 'EUR' THEN jls.min_salary * ler.gbp
-    WHEN 'JPY' THEN (jls.min_salary / ler.jpy) * ler.gbp
-    WHEN 'USD' THEN (jls.min_salary / ler.usd) * ler.gbp
-    WHEN 'GBP' THEN jls.min_salary
-    WHEN 'AUD' THEN (jls.min_salary / ler.aud) * ler.gbp
-    WHEN 'CAD' THEN (jls.min_salary / ler.cad) * ler.gbp
-  END AS INTEGER) AS min_salary_gbp,
-  cast(CASE c.code
-    WHEN 'EUR' THEN jls.max_salary * ler.gbp
-    WHEN 'JPY' THEN (jls.max_salary / ler.jpy) * ler.gbp
-    WHEN 'USD' THEN (jls.max_salary / ler.usd) * ler.gbp
-    WHEN 'GBP' THEN jls.max_salary
-    WHEN 'AUD' THEN (jls.max_salary / ler.aud) * ler.gbp
-    WHEN 'CAD' THEN (jls.max_salary / ler.cad) * ler.gbp
-  END AS INTEGER) AS max_salary_gbp,
-
-  -- To AUD
-  cast(CASE c.code
-    WHEN 'EUR' THEN jls.min_salary * ler.aud
-    WHEN 'JPY' THEN (jls.min_salary / ler.jpy) * ler.aud
-    WHEN 'USD' THEN (jls.min_salary / ler.usd) * ler.aud
-    WHEN 'GBP' THEN (jls.min_salary / ler.gbp) * ler.aud
-    WHEN 'AUD' THEN (jls.min_salary / ler.aud) * ler.aud
-    WHEN 'CAD' THEN (jls.min_salary / ler.cad) * ler.aud
-  END AS INTEGER) AS min_salary_aud,
-  cast(CASE c.code
-    WHEN 'EUR' THEN jls.max_salary * ler.aud
-    WHEN 'JPY' THEN (jls.max_salary / ler.jpy) * ler.aud
-    WHEN 'USD' THEN (jls.max_salary / ler.usd) * ler.aud
-    WHEN 'GBP' THEN (jls.max_salary / ler.gbp) * ler.aud
-    WHEN 'AUD' THEN (jls.max_salary / ler.aud) * ler.aud
-    WHEN 'CAD' THEN (jls.max_salary / ler.cad) * ler.aud
-  END AS INTEGER) AS max_salary_aud,
-
-  -- To CAD
-  cast(CASE c.code
-    WHEN 'EUR' THEN jls.min_salary * ler.cad
-    WHEN 'JPY' THEN (jls.min_salary / ler.jpy) * ler.cad
-    WHEN 'USD' THEN (jls.min_salary / ler.usd) * ler.cad
-    WHEN 'GBP' THEN (jls.min_salary / ler.gbp) * ler.cad
-    WHEN 'AUD' THEN (jls.min_salary / ler.aud) * ler.cad
-    WHEN 'CAD' THEN jls.min_salary
-  END AS INTEGER) AS min_salary_cad,
-  cast(CASE c.code
-    WHEN 'EUR' THEN jls.max_salary * ler.cad
-    WHEN 'JPY' THEN (jls.max_salary / ler.jpy) * ler.cad
-    WHEN 'USD' THEN (jls.max_salary / ler.usd) * ler.cad
-    WHEN 'GBP' THEN (jls.max_salary / ler.gbp) * ler.cad
-    WHEN 'AUD' THEN (jls.max_salary / ler.aud) * ler.cad
-    WHEN 'CAD' THEN jls.max_salary
-  END AS INTEGER) AS max_salary_cad
-FROM
-  remotehiro.jobs_location_salaries AS jls,
-  json_each(coalesce(?1, '[null]')) AS job_ids,
-  (
-    SELECT * FROM currency_exchange.rates
-    ORDER BY date DESC LIMIT 1
-  ) AS ler
-LEFT JOIN remotehiro.currencies AS c
-  ON jls.currency_id = c.currency_id
-WHERE
-  CASE
-    WHEN job_ids.value IS NOT NULL THEN jls.job_id = job_ids.value
-    ELSE TRUE
-  END;
+  cast(ceil(min_salary_eur) AS INTEGER),
+  cast(ceil(max_salary_eur) AS INTEGER),
+  cast(ceil(min_salary_eur * json_extract(rates_json, '$.JPY')) AS INTEGER),
+  cast(ceil(max_salary_eur * json_extract(rates_json, '$.JPY')) AS INTEGER),
+  cast(ceil(min_salary_eur * json_extract(rates_json, '$.USD')) AS INTEGER),
+  cast(ceil(max_salary_eur * json_extract(rates_json, '$.USD')) AS INTEGER),
+  cast(ceil(min_salary_eur * json_extract(rates_json, '$.GBP')) AS INTEGER),
+  cast(ceil(max_salary_eur * json_extract(rates_json, '$.GBP')) AS INTEGER),
+  cast(ceil(min_salary_eur * json_extract(rates_json, '$.AUD')) AS INTEGER),
+  cast(ceil(max_salary_eur * json_extract(rates_json, '$.AUD')) AS INTEGER),
+  cast(ceil(min_salary_eur * json_extract(rates_json, '$.CAD')) AS INTEGER),
+  cast(ceil(max_salary_eur * json_extract(rates_json, '$.CAD')) AS INTEGER)
+FROM salaries_in_eur;
