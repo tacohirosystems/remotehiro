@@ -20,3 +20,7 @@
 20260522210751_update_view 2026-05-22T21:08:02Z sekun <sekun@blaziken> # Update enriched_jobs view
 20260527125157_add_more_job_cols 2026-05-27T12:52:09Z sekun <sekun@blaziken> # Add extra job data
 20260527151000_update_view 2026-05-27T15:10:00Z sekun <sekun@blaziken> # Update enriched_jobs view with description_html, posted_at, delisted_at
+20260529131230_add_tag_score 2026-05-29T13:12:55Z sekun <sekun@blaziken> # Add scoring to job tags
+20260529132800_add_company_slug 2026-05-29T13:28:04Z sekun <sekun@blaziken> # Add company slug
+20260529134220_add_metadata 2026-05-29T13:42:26Z sekun <sekun@blaziken> # Add metadata
+20260529174629_add_relative_posted_at 2026-05-29T18:18:51Z sekun <sekun@blaziken> # Add relative_posted_at to enriched_jobs view
