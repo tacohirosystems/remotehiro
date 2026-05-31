@@ -14,6 +14,10 @@
       sqitch --target remotehiro-data deploy 20260114015529_add_stack_influence_job_marketing || true
       sqitch --target remotehiro deploy 20260123102636_add_business_regions || true
       sqitch --target remotehiro-data deploy 20260131004620_add_buffer_be_job || true
+      sqitch --target remotehiro deploy 20260527125157_add_more_job_cols || true
+      sqitch --target remotehiro-data deploy 20260527152000_backfill_equity || true
+      sqitch --target remotehiro deploy 20260529134220_add_metadata || true
+      sqitch --target remotehiro-data deploy 20260529134844_backfill_company_slugs || true
     elif [ "$1" = "migrations" ]; then
       if [ "$2" = "up" ]; then
         echo "Running latest migrations..."

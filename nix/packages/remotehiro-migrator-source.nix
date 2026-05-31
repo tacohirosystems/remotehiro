@@ -6,9 +6,9 @@
 
     (pkgs.fetchgit {
       url = "https://forgejo.quoll-owl.ts.net/remotehiro/data-migrations";
-      rev = "6d5cd385568bf9d4797b64ee1cc9f2ab76d13fe1";
       # sha256 = pkgs.lib.fakeSha256;
-      sha256 = "sha256-W/zSogMSrxN4ac/LV8rtWR5CpDy/Ww0mY84KG0sazkM=";
+      sha256 = "sha256-MnxjdlT3lo1Iia+ZhINTSUnzpGWi/xc2hW5c4pthpH4=";
+      rev = "0435508db2886c25d7cfdb6e7727e1ab70e9f6f4";
       name = "data-migrations";
      })
   ];
