@@ -62,30 +62,47 @@ pub(crate) async fn run(
     TypedHeader(hx_request): TypedHeader<HxRequest>,
     mut jar: CookieJar,
 ) -> Result<(CookieJar, Html<String>), IndexError> {
+    let total = std::time::Instant::now();
     tracing::info!("Handling request...");
     let query_str = serde_html_form::to_string(filters.clone()).unwrap_or("".to_owned());
     jar = jar.add(Cookie::new("query", query_str));
 
     let html = if hx_request.0 {
+        let t = std::time::Instant::now();
         let jobs = crate::service::list_jobs(
             &env.database,
             filters.clone(),
             env.warehouse_db_path.clone(),
         )
-        .await?;
-        crate::view::render_index_partial(&env.template, jobs)?
+        .await
+        .inspect_err(|e| tracing::error!("failed to list jobs. reason: {e}"))?;
+        tracing::info!("timing: service::list_jobs = {:?}", t.elapsed());
+
+        let t = std::time::Instant::now();
+        let html = crate::view::render_index_partial(&env.template, jobs, filters)?;
+        tracing::info!("timing: view::render_index_partial = {:?}", t.elapsed());
+        html
     } else {
+        let t = std::time::Instant::now();
         let index_page = crate::service::index_jobs_page(
             &env.database,
             env.build_info.clone(),
             filters.clone(),
             env.warehouse_db_path.clone(),
         )
-        .await?;
-        crate::view::render_index(&env.template, index_page, filters)?
+        .await
+        .inspect_err(|e| tracing::error!("failed to get job page. reason: {e}"))?;
+        tracing::info!("timing: service::index_jobs_page = {:?}", t.elapsed());
+
+        let t = std::time::Instant::now();
+        let html = crate::view::render_index(&env.template, index_page, filters)
+            .inspect_err(|e| tracing::error!("failed to render job page. reason: {e}"))?;
+        tracing::info!("timing: view::render_index = {:?}", t.elapsed());
+        html
     };
 
     tracing::debug!("{:#?}", hx_request);
+    tracing::info!("timing: handler total = {:?}", total.elapsed());
 
     Ok((jar, html))
 }

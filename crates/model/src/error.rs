@@ -18,8 +18,21 @@ impl From<rusqlite::Error> for DbError {
     }
 }
 
+impl From<rusqlite::types::FromSqlError> for DbError {
+    fn from(err: rusqlite::types::FromSqlError) -> Self {
+        Self::Rusqlite(rusqlite::Error::FromSqlConversionFailure(
+            0,
+            rusqlite::types::Type::Blob,
+            Box::new(err),
+        ))
+    }
+}
+
 impl Display for DbError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self)
+        match self {
+            DbError::Rusqlite(error) => write!(f, "failed to execute query"),
+            DbError::Deserialize(error) => write!(f, "failed to deserialize rows"),
+        }
     }
 }
