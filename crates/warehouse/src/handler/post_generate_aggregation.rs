@@ -16,9 +16,9 @@ impl From<crate::service::RepoError> for PostGenerateAggregationError {
 }
 
 impl std::fmt::Display for PostGenerateAggregationError {
-    fn fmt(&self, _f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            _ => todo!(),
+            _ => write!(f, "{self}"),
         }
     }
 }
@@ -30,7 +30,6 @@ impl IntoResponse for PostGenerateAggregationError {
     }
 }
 
-#[axum::debug_handler]
 pub async fn run(
     State(env): State<Arc<HandlerEnv>>,
     Json(payload): Json<Vec<model::warehouse::GenerateAggregation>>,
@@ -47,7 +46,8 @@ pub async fn run(
                     env.currency_exchange_db_path.clone(),
                     job_ids,
                 )
-                .await?;
+                .await
+                .inspect_err(|e| tracing::error!("failed to generate job tags. reason: {e}"))?;
             }
             model::warehouse::GenerateAggregation::JobsTags { job_ids } => {
                 tracing::info!("Generating JobsTags...");
@@ -57,7 +57,8 @@ pub async fn run(
                     env.currency_exchange_db_path.clone(),
                     job_ids,
                 )
-                .await?;
+                .await
+                .inspect_err(|e| tracing::error!("failed to generate job tags. reason: {e}"))?;
             },
         }
     }
