@@ -20,12 +20,14 @@ const STATIC_ASSETS_PATH: &str = "REMOTEHIRO_SERVER_STATIC_ASSETS_PATH";
 const COMMIT_HASH: &str = "REMOTEHIRO_SERVER_COMMIT_HASH";
 const VERSION: &str = "REMOTEHIRO_SERVER_VERSION";
 const NIX_PATH: &str = "REMOTEHIRO_SERVER_NIX_PATH";
+const SERVER_PORT: &str = "REMOTEHIRO_SERVER_PORT";
 
 #[derive(Clone, Debug)]
 pub struct ServerConfig {
     pub static_assets_path: PathBuf,
     pub templates_path: PathBuf,
     pub build_info: model::server::BuildInfo,
+    pub port: u16,
 }
 
 #[derive(Debug)]
@@ -78,6 +80,10 @@ impl ServerConfig {
         let nix_path = std::env::var(NIX_PATH).ok().map(|path| PathBuf::from(path));
         let commit_hash = std::env::var(COMMIT_HASH).ok();
         let version = std::env::var(VERSION).ok().unwrap_or("dev".to_string());
+        let port = std::env::var(SERVER_PORT)
+            .ok()
+            .and_then(|port| port.parse::<u16>().ok())
+            .unwrap_or(3000_u16);
 
         let config = Self {
             static_assets_path,
@@ -87,6 +93,7 @@ impl ServerConfig {
                 commit_hash,
                 version,
             },
+            port,
         };
         Ok(config)
     }
@@ -185,6 +192,8 @@ pub async fn run<'k>() -> Result<(), ServerError<'k>> {
     // Server configuration
     let server_config = ServerConfig::from_env()?;
 
+    tracing::info!("Server config: {:?}", server_config);
+
     // Database handle
     let database_path =
         PathBuf::from(
@@ -246,7 +255,7 @@ pub async fn run<'k>() -> Result<(), ServerError<'k>> {
     env.add_function("string_array_contains", string_array_contains);
 
     let template_handle = template_builder.build_static();
-    let addr = SocketAddr::from(([0, 0, 0, 0], 3000));
+    let addr = SocketAddr::from(([0, 0, 0, 0], server_config.port));
     let listener = tokio::net::TcpListener::bind(addr).await?;
     let job_env = job::HandlerEnv::new(
         db_handle.clone(),
@@ -452,3 +461,4 @@ fn string_array_contains(source: Vec<String>, dest: Vec<String>) -> bool {
     }
     return true;
 }
+
