@@ -2,6 +2,7 @@
 
 BEGIN;
 
-SELECT 1 FROM sqlite_master WHERE type='table' AND name='jobs_tags';
+SELECT 1 FROM sqlite_master
+WHERE type = 'table' AND name = 'jobs_tags';
 
 ROLLBACK;

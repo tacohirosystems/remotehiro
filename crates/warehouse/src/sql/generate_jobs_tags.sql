@@ -1,4 +1,4 @@
-INSERT INTO jobs_tags(
+INSERT INTO jobs_tags (
   job_id,
   tags,
   created_at,
@@ -7,8 +7,8 @@ INSERT INTO jobs_tags(
 SELECT
   job_id,
   json_group_array(t.name) AS tags,
-  CURRENT_TIMESTAMP,
-  CURRENT_TIMESTAMP AS updated_at
+  current_timestamp,
+  current_timestamp AS updated_at
 FROM remotehiro.jobs_tags jt
 INNER JOIN remotehiro.tags t
   ON jt.tag_id = t.tag_id
@@ -21,5 +21,5 @@ WHERE
 GROUP BY jt.job_id
 ON CONFLICT (job_id)
 DO UPDATE SET
-  tags = EXCLUDED.tags,
-  updated_at = EXCLUDED.updated_at;
+  tags = excluded.tags,
+  updated_at = excluded.updated_at;

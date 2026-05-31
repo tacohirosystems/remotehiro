@@ -121,18 +121,21 @@ LEFT JOIN cities AS aci
 LEFT JOIN warehouse.jobs_tags AS jt
   ON j.job_id = jt.job_id
 WHERE
-  ((?1->>'job_id') IS NULL OR j.job_id = (?1->>'job_id'))
+  ((?1 ->> 'job_id') IS NULL OR j.job_id = (?1 ->> 'job_id'))
   AND (
     (?1 ->> 'query') IS NULL OR j.position LIKE '%' || (?1 ->> 'query') || '%'
   )
   AND (
-    ?1->>'categories' IS NULL OR EXISTS (
+    ?1 ->> 'categories' IS NULL OR EXISTS (
       SELECT 1
-      FROM json_each(?1->>'categories') c
+      FROM json_each(?1 ->> 'categories') c
       WHERE c.value = j.category_name
     )
   )
-  AND (?1->>'tags' IS NULL OR json_array_intersect(?1->>'tags', coalesce(jt.tags, '[]')))
+  AND (
+    ?1 ->> 'tags' IS NULL
+    OR json_array_intersect(?1 ->> 'tags', coalesce(jt.tags, '[]'))
+  )
   AND (
     ?1 ->> 'min_salary' IS NULL
     OR (

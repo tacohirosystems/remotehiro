@@ -7,6 +7,11 @@ migrations-down:
 migrations-add CHANGE:
   sqitch add --chdir sql/migrations {{ CHANGE }}
 
+warehouse-generate:
+  curl -i --fail -X POST "http://localhost:3000/api/warehouse/generate" \
+    -d '[{"name": "JobsLocationSalariesInAltCurrencies"}, {"name": "JobsTags"}]' \
+    -H 'Content-Type: application/json'
+
 warehouse-migrations-up:
   sqitch --target remotehiro-warehouse deploy
 
