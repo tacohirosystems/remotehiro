@@ -1,0 +1,27 @@
+-- Revert remotehiro-warehouse:20260531135509_add_more_currencies from sqlite
+
+BEGIN IMMEDIATE;
+
+ALTER TABLE jobs_location_salaries_in_alt_currencies DROP COLUMN min_salary_pln;
+ALTER TABLE jobs_location_salaries_in_alt_currencies DROP COLUMN max_salary_pln;
+ALTER TABLE jobs_location_salaries_in_alt_currencies DROP COLUMN min_salary_sgd;
+ALTER TABLE jobs_location_salaries_in_alt_currencies DROP COLUMN max_salary_sgd;
+ALTER TABLE jobs_location_salaries_in_alt_currencies DROP COLUMN min_salary_inr;
+ALTER TABLE jobs_location_salaries_in_alt_currencies DROP COLUMN max_salary_inr;
+ALTER TABLE jobs_location_salaries_in_alt_currencies DROP COLUMN min_salary_mxn;
+ALTER TABLE jobs_location_salaries_in_alt_currencies DROP COLUMN max_salary_mxn;
+ALTER TABLE jobs_location_salaries_in_alt_currencies DROP COLUMN min_salary_brl;
+ALTER TABLE jobs_location_salaries_in_alt_currencies DROP COLUMN max_salary_brl;
+ALTER TABLE jobs_location_salaries_in_alt_currencies DROP COLUMN min_salary_ils;
+ALTER TABLE jobs_location_salaries_in_alt_currencies DROP COLUMN max_salary_ils;
+ALTER TABLE jobs_location_salaries_in_alt_currencies DROP COLUMN min_salary_huf;
+ALTER TABLE jobs_location_salaries_in_alt_currencies DROP COLUMN max_salary_huf;
+ALTER TABLE jobs_location_salaries_in_alt_currencies DROP COLUMN min_salary_czk;
+ALTER TABLE jobs_location_salaries_in_alt_currencies DROP COLUMN max_salary_czk;
+ALTER TABLE jobs_location_salaries_in_alt_currencies DROP COLUMN min_salary_chf;
+ALTER TABLE jobs_location_salaries_in_alt_currencies DROP COLUMN max_salary_chf;
+ALTER TABLE jobs_location_salaries_in_alt_currencies DROP COLUMN min_salary_sek;
+ALTER TABLE jobs_location_salaries_in_alt_currencies DROP COLUMN max_salary_sek;
+
+
+COMMIT;
