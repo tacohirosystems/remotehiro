@@ -61,8 +61,7 @@
 
       perSystem = { config, system, ... }:
         let
-          version = "0.0.1-alpha";
-          server_port = "3000";
+          version = "0.0.2-alpha";
           overlays = [ ];
           pkgs = import nixpkgs { inherit system overlays; config.allowUnfree = true; };
           pkgs-unstable = import nixpkgs-unstable { inherit system overlays; };
@@ -245,6 +244,10 @@
               remotehiro-static = import ./nix/packages/remotehiro-static.nix {
                 inherit self pkgs asset-builder version;
               };
+
+              some-sass-language-server = import ./nix/packages/some-sass-language-server.nix {
+                inherit pkgs;
+              };
             };
 
           devShells = {
@@ -252,6 +255,7 @@
             default = import ./nix/shells/dev.nix {
               inherit pkgs pkgs-unstable craneLib;
               inherit (moneyman-flake.packages.${system}) moneyman;
+              inherit (self.packages.${system}) some-sass-language-server;
             };
           };
         };

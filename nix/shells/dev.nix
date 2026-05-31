@@ -1,4 +1,4 @@
-{ pkgs, pkgs-unstable, craneLib, moneyman }: craneLib.devShell {
+{ pkgs, pkgs-unstable, craneLib, moneyman, some-sass-language-server }: craneLib.devShell {
   # inputsFrom = [ (mkRemoteHiro "dev") self.packages.${system}.remotehiro-static ];
   # checks = self.checks.${system};
 
@@ -16,12 +16,15 @@
   REMOTEHIRO_SERVER_TEMPLATES_PATH = "templates";
   REMOTEHIRO_SERVER_STATIC_ASSETS_PATH = "public";
   REMOTEHIRO_SERVER_VERSION="dev";
+  REMOTEHIRO_SERVER_PORT = "8080";
 
   SQLITE3_LIB_DIR = "${pkgs-unstable.lib.makeLibraryPath [ pkgs-unstable.sqlite ]}";
   SQLITE3_INCLUDE_DIR = "${pkgs-unstable.sqlite.dev}/include";
 
   LIBCLANG_PATH = "${pkgs.llvmPackages.libclang.lib}/lib";
   BINDGEN_EXTRA_CLANG_ARGS = "-isystem ${pkgs.llvmPackages.libclang.lib}/lib/clang/19/include";
+
+  RUST_LOG="info";
 
   packages = with pkgs; [
     cargo-audit
@@ -48,8 +51,10 @@
 
     just
 
+    # LSPs
     nil
-    nixpkgs-fmt
+    some-sass-language-server
+
 
     pkgs-unstable.sqlite
     pkgs-unstable.sqlite.dev
@@ -60,8 +65,6 @@
 
     sqlfluff
 
-    yamlfmt
-    yamllint
     taplo
     graphicsmagick
     shellcheck
@@ -69,5 +72,12 @@
     watchexec
 
     moneyman
+
+    djlint
+    prettier
+    stylelint
+    nixpkgs-fmt
+    yamlfmt
+    yamllint
   ];
 }
