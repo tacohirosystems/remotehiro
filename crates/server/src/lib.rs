@@ -461,4 +461,3 @@ fn string_array_contains(source: Vec<String>, dest: Vec<String>) -> bool {
     }
     return true;
 }
-

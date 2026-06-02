@@ -36,3 +36,5 @@ seed.sql
 *.csv
 todo.md
 dump-*.sql
+
+.pre-commit*

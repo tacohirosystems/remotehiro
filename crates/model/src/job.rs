@@ -295,7 +295,9 @@ impl TryFrom<&rusqlite::Row<'_>> for Job {
             serde_json::from_slice(row.get_ref("applicant_locations")?.as_bytes()?)?;
         let locations = serde_json::from_slice(row.get_ref("locations")?.as_bytes()?)?;
         let location_salaries =
-            serde_json::from_slice(row.get_ref("location_salaries")?.as_bytes()?).inspect_err(|err| tracing::error!(column = "location_salaries", error = %err, "row.get failed"))?;
+            serde_json::from_slice(row.get_ref("location_salaries")?.as_bytes()?).inspect_err(
+                |err| tracing::error!(column = "location_salaries", error = %err, "row.get failed"),
+            )?;
         let tags = serde_json::from_slice(row.get_ref("tags")?.as_bytes()?)?;
         let position = row.get("position")?;
         let relative_bumped_at = row
@@ -312,7 +314,7 @@ impl TryFrom<&rusqlite::Row<'_>> for Job {
             (true, None) => AddonHighlight::Basic("fffdd0".to_owned()),
             (_, Some(hex)) => AddonHighlight::Custom(hex),
             // FIXME: Remove need for value in `None` variant
-            (false, None) => AddonHighlight::None("".to_owned()),
+            (false, None) => AddonHighlight::None(String::new()),
         };
 
         Ok(Job {

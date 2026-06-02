@@ -1,3 +1,5 @@
+mod lint
+
 migrations-up:
   sqitch --target remotehiro deploy
 

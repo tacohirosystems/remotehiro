@@ -38,7 +38,9 @@ pub async fn run(
 
     for req in payload {
         match req {
-            model::warehouse::GenerateAggregation::JobsLocationSalariesInAltCurrencies { job_ids } => {
+            model::warehouse::GenerateAggregation::JobsLocationSalariesInAltCurrencies {
+                job_ids,
+            } => {
                 tracing::info!("Generating JobsLocationSalariesInAltCurrencies...");
                 service::generate_jobs_location_salaries_in_alt_currencies(
                     &env.warehouse_database,
@@ -59,7 +61,7 @@ pub async fn run(
                 )
                 .await
                 .inspect_err(|e| tracing::error!("failed to generate job tags. reason: {e}"))?;
-            },
+            }
         }
     }
 

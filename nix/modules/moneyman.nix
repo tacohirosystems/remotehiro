@@ -1,49 +1,53 @@
 { config, pkgs, lib, ... }:
-  let
-    cfg = config.services.remotehiro-moneyman;
-    exe = lib.getExe cfg.package;
-  in with lib; {
-    options = {
-      services.remotehiro-moneyman = {
-        enable = mkOption {
-          default = false;
-          type = with types; bool;
-          description = "Start the moneyman sync CRON for a user";
-        };
+let
+  cfg = config.services.remotehiro-moneyman;
+  exe = lib.getExe cfg.package;
+in
+with lib; {
+  options = {
+    services.remotehiro-moneyman = {
+      enable = mkOption {
+        default = false;
+        type = with types; bool;
+        description = "Start the moneyman sync CRON for a user";
+      };
 
-        package = lib.mkPackageOption pkgs "moneyman" { };
+      package = lib.mkPackageOption pkgs "moneyman" { };
 
-        stateDir = mkOption {
-          type = types.path;
-          description = "Path to data directory. This is where the ECB database will be stored.";
-          default = "/var/lib/remotehiro";
-        };
+      stateDir = mkOption {
+        type = types.path;
+        description = "Path to data directory. This is where the ECB database will be stored.";
+        default = "/var/lib/remotehiro";
+      };
 
-        user = mkOption {
-          type = types.str;
-          description = "User account under which moneyman runs on.";
-          default = "remotehiro";
-        };
+      user = mkOption {
+        type = types.str;
+        description = "User account under which moneyman runs on.";
+        default = "remotehiro";
+      };
 
-        group = mkOption {
-          type = types.str;
-          description = "Group under which moneyman runs on.";
-          default = "remotehiro";
-        };
+      group = mkOption {
+        type = types.str;
+        description = "Group under which moneyman runs on.";
+        default = "remotehiro";
       };
     };
+  };
 
-    config = mkIf cfg.enable {
-      systemd.timers."remotehiro-moneyman" = {
+  config = mkIf cfg.enable {
+    systemd = {
+      packages = [ cfg.package ];
+
+      timers."remotehiro-moneyman" = {
         wantedBy = [ "timers.target" ];
-          timerConfig = {
-            OnCalendar = "Mon..Fri 00:00";
-            Persistent = true;
-            Unit = "remotehiro-moneyman.service";
-          };
+        timerConfig = {
+          OnCalendar = "Mon..Fri 00:00";
+          Persistent = true;
+          Unit = "remotehiro-moneyman.service";
+        };
       };
 
-      systemd.services.remotehiro-moneyman = {
+      services.remotehiro-moneyman = {
         script = ''
           ${exe} sync --data-dir ${cfg.stateDir}
         '';
@@ -87,24 +91,24 @@
           ProtectKernelLogs = true;
           ProtectControlGroups = true;
           CapabilityBoundingSet = "";
+        };
       };
     };
 
     users.users = mkIf (cfg.user == "remotehiro") {
       remotehiro = {
+        inherit (cfg) group;
         home = cfg.stateDir;
         useDefaultShell = true;
-        group = cfg.group;
         isSystemUser = true;
         createHome = true;
       };
     };
 
     users.groups = mkIf (cfg.group == "remotehiro") {
-      remotehiro = {};
+      remotehiro = { };
     };
 
     environment.systemPackages = [ cfg.package ];
-    systemd.packages = [ cfg.package ];
   };
 }

@@ -31,8 +31,7 @@ pub fn bulk_delete_jobs_tags<'t>(
     txn: &Transaction<'t>,
     job_ids: Option<Vec<model::job::JobId>>,
 ) -> Result<(), rusqlite::Error> {
-    let mut statement =
-        txn.prepare(crate::sql::BULK_DELETE_JOBS_TAGS_QUERY)?;
+    let mut statement = txn.prepare(crate::sql::BULK_DELETE_JOBS_TAGS_QUERY)?;
     statement
         .execute(rusqlite::params![json!(job_ids)])
         .inspect_err(|err| tracing::error!("{:#?}", err))?;
@@ -44,8 +43,7 @@ pub fn generate_jobs_tags<'t>(
     txn: &Transaction<'t>,
     job_ids: Option<Vec<model::job::JobId>>,
 ) -> Result<(), rusqlite::Error> {
-    let mut statement =
-        txn.prepare(crate::sql::GENERATE_JOBS_TAGS_QUERY)?;
+    let mut statement = txn.prepare(crate::sql::GENERATE_JOBS_TAGS_QUERY)?;
     statement
         .execute(rusqlite::params![json!(job_ids)])
         .inspect_err(|err| tracing::error!("{:#?}", err))?;

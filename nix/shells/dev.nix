@@ -1,8 +1,8 @@
-{ pkgs, pkgs-unstable, craneLib, moneyman, some-sass-language-server }: craneLib.devShell {
+{ pkgs, pkgs-unstable, craneLib, moneyman, some-sass-language-server, shellHook }: craneLib.devShell {
   # inputsFrom = [ (mkRemoteHiro "dev") self.packages.${system}.remotehiro-static ];
   # checks = self.checks.${system};
 
-  shellHook = ''
+  shellHook = shellHook + ''
     set -a
     source env.sh
     set +a
@@ -15,7 +15,7 @@
   REMOTEHIRO_CURRENCY_EXCHANGE_DATABASE_PATH = "eurofxref-hist.db3";
   REMOTEHIRO_SERVER_TEMPLATES_PATH = "templates";
   REMOTEHIRO_SERVER_STATIC_ASSETS_PATH = "public";
-  REMOTEHIRO_SERVER_VERSION="dev";
+  REMOTEHIRO_SERVER_VERSION = "dev";
   REMOTEHIRO_SERVER_PORT = "8080";
 
   SQLITE3_LIB_DIR = "${pkgs-unstable.lib.makeLibraryPath [ pkgs-unstable.sqlite ]}";
@@ -24,7 +24,7 @@
   LIBCLANG_PATH = "${pkgs.llvmPackages.libclang.lib}/lib";
   BINDGEN_EXTRA_CLANG_ARGS = "-isystem ${pkgs.llvmPackages.libclang.lib}/lib/clang/19/include";
 
-  RUST_LOG="info";
+  RUST_LOG = "info";
 
   packages = with pkgs; [
     cargo-audit

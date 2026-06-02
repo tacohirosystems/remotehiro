@@ -58,9 +58,11 @@ pub async fn generate_jobs_location_salaries_in_alt_currencies(
         database::attach_remotehiro_db(&conn, &remotehiro_db_path)?;
         database::attach_currency_exchange_db(&conn, &currency_exchange_db_path)?;
         let txn = conn.transaction()?;
-        let result = repository::bulk_delete_jobs_location_salaries_in_alt_currencies(&txn, job_ids.clone()).and_then(|_| {
-            repository::generate_jobs_location_salaries_in_alt_currencies(&txn, job_ids)
-        });
+        let result =
+            repository::bulk_delete_jobs_location_salaries_in_alt_currencies(&txn, job_ids.clone())
+                .and_then(|_| {
+                    repository::generate_jobs_location_salaries_in_alt_currencies(&txn, job_ids)
+                });
         txn.commit()?;
         database::detach_remotehiro_db(conn)?;
         database::detach_currency_exchange_db(conn)?;
@@ -81,9 +83,8 @@ pub async fn generate_jobs_tags(
         database::attach_remotehiro_db(&conn, &remotehiro_db_path)?;
         database::attach_currency_exchange_db(&conn, &currency_exchange_db_path)?;
         let txn = conn.transaction()?;
-        let result = repository::bulk_delete_jobs_tags(&txn, job_ids.clone()).and_then(|_| {
-            repository::generate_jobs_tags(&txn, job_ids)
-        });
+        let result = repository::bulk_delete_jobs_tags(&txn, job_ids.clone())
+            .and_then(|_| repository::generate_jobs_tags(&txn, job_ids));
         txn.commit()?;
         database::detach_remotehiro_db(conn)?;
         database::detach_currency_exchange_db(conn)?;

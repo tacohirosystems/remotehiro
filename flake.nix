@@ -250,14 +250,20 @@
               };
             };
 
-          devShells = {
-            ci = import ./nix/shells/ci.nix { inherit pkgs pkgs-unstable; };
-            default = import ./nix/shells/dev.nix {
-              inherit pkgs pkgs-unstable craneLib;
-              inherit (moneyman-flake.packages.${system}) moneyman;
-              inherit (self.packages.${system}) some-sass-language-server;
+          devShells =
+            let
+              inherit (self.checks.${system}.git-hook-check) shellHook;
+            in
+            {
+              ci = import ./nix/shells/ci.nix { inherit pkgs pkgs-unstable; };
+
+              default = import ./nix/shells/dev.nix {
+                inherit pkgs pkgs-unstable craneLib;
+                inherit (moneyman-flake.packages.${system}) moneyman;
+                inherit (self.packages.${system}) some-sass-language-server;
+                inherit shellHook;
+              };
             };
-          };
         };
     };
 }
