@@ -37,3 +37,6 @@ time.workspace = true
 slug.workspace = true
 
 resvg.workspace = true
+
+[lints]
+workspace = true

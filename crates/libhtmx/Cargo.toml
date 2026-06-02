@@ -11,3 +11,6 @@ license.workspace = true
 [dependencies]
 http.workspace = true
 headers.workspace = true
+
+[lints]
+workspace = true

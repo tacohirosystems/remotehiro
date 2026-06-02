@@ -12,3 +12,6 @@ license.workspace = true
 model.workspace = true
 
 rusqlite.workspace = true
+
+[lints]
+workspace = true
