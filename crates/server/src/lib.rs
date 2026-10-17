@@ -6,7 +6,7 @@ use std::{
 };
 
 use axum::{extract::Request, http::StatusCode, response::IntoResponse, routing};
-use minijinja::{context, Value};
+use minijinja::{Value, context, value::Serde};
 use serde::Deserialize;
 use time::Duration;
 use tokio::signal;
@@ -205,11 +205,18 @@ pub async fn run<'k>() -> Result<(), ServerError<'k>> {
 
     let mut db_handle = su_sqlite::handle::Handle::builder(database_path.clone());
 
-    db_handle.set_post_create(Some(|conn| {
+    db_handle.set_read_post_create(Some(|conn| {
         database::json_concat_array(&conn)?;
         database::json_array_intersect(&conn)?;
         Ok(())
     }));
+
+    db_handle.set_write_post_create(Some(|conn| {
+        database::json_concat_array(&conn)?;
+        database::json_array_intersect(&conn)?;
+        Ok(())
+    }));
+
 
     let db_handle = db_handle.build()?;
     let db_handle = Arc::new(db_handle);
@@ -245,6 +252,11 @@ pub async fn run<'k>() -> Result<(), ServerError<'k>> {
         server_config.templates_path.as_path(),
     ));
 
+    // Well right now minijinja defaults to `true` for autoreload anyway.
+    if server_config.build_info.version != "dev" {
+        env.set_auto_reload(false);
+    }
+
     env.add_filter("comma_split", comma_split);
     env.add_filter("human_duration", human_duration);
     env.add_filter("slugify", slug::slugify::<String>);
@@ -254,7 +266,7 @@ pub async fn run<'k>() -> Result<(), ServerError<'k>> {
     env.add_function("a11y_color", a11y_color);
     env.add_function("string_array_contains", string_array_contains);
 
-    let template_handle = template_builder.build_static();
+    let template_handle = template_builder.build();
     let addr = SocketAddr::from(([0, 0, 0, 0], server_config.port));
     let listener = tokio::net::TcpListener::bind(addr).await?;
     let job_env = job::HandlerEnv::new(
@@ -296,7 +308,7 @@ pub async fn run<'k>() -> Result<(), ServerError<'k>> {
                 )
                 .await?;
 
-                let context = context!(jobs => jobs);
+                let context = context!(jobs => Value::from(Serde(jobs)));
 
                 let xml = template_handle
                     .clone()

@@ -1,4 +1,5 @@
 use axum::response::Html;
+use minijinja::{Value, value::Serde};
 use resvg::{tiny_skia, usvg};
 
 pub fn render_index(
@@ -7,8 +8,8 @@ pub fn render_index(
     filters: model::job::IndexFilters,
 ) -> Result<Html<String>, su_template::RenderTemplateError> {
     let context = minijinja::context! {
-        filters => filters,
-        assigns => assigns,
+        filters => Value::from(Serde(filters)),
+        assigns => Value::from(Serde(assigns)),
     };
 
     let html = template_handle.render_template(context, "pages/index_job.html")?;
@@ -20,7 +21,7 @@ pub fn render_index_partial(
     jobs: Vec<model::job::Job>,
     filters: model::job::IndexFilters,
 ) -> Result<Html<String>, su_template::RenderTemplateError> {
-    let context = minijinja::context! {jobs => jobs, filters => filters};
+    let context = minijinja::context! {jobs => Value::from(Serde(jobs)), filters => Value::from(Serde(filters))};
     let html = template_handle.render_template(context, "partials/job_entries.html")?;
     Ok(Html(html))
 }
@@ -31,7 +32,7 @@ pub fn render_view(
     query: Option<&str>,
 ) -> Result<Html<String>, su_template::RenderTemplateError> {
     let context = minijinja::context! {
-        assigns => assigns,
+        assigns => Value::from(Serde(assigns)),
         query => query,
     };
 
@@ -56,7 +57,7 @@ pub fn render_index_rss(
             .build();
 
         let assigns = minijinja::context! {
-            job => job,
+            job => Value::from(Serde(job)),
         };
 
         let context = minijinja::context! {
@@ -109,7 +110,7 @@ pub fn render_job_thumbnail(
     template_handle: &su_template::Handle,
     job: model::job::Job,
 ) -> Result<Vec<u8>, ()> {
-    let context = minijinja::context! {job => job};
+    let context = minijinja::context! {job => Value::from(Serde(job))};
     println!("hi");
     let svg = template_handle
         .render_template(context, "components/job_thumbnail.svg")

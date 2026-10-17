@@ -10,11 +10,11 @@ codegen-units = 1
 opt-level = 3
 
 [workspace.package]
-edition = "2021"
+edition = "2024"
 homepage = "https://www.remotehiro.com"
 include = ["**/*.rs", "Cargo.toml", "crates/**/*.sql", "templates/**/*.html"]
 repository = "https://github.com/tacohirosystems/remotehiro"
-rust-version = "1.84.1"
+rust-version = "1.99"
 version = "0.0.1-alpha"
 license = "EUPL-1.2"
 
@@ -33,19 +33,19 @@ database = { path = "crates/database" }
 warehouse = { path = "crates/warehouse" }
 
 # Database
-rusqlite = { version = "0.37", features = [
+rusqlite = { version = "0.40", features = [
   "serde_json",
   "array",
   "buildtime_bindgen",
   "time",
   "functions",
 ] }
-su_sqlite = { git = "https://forgejo.quoll-owl.ts.net/tacohirosystems/pkg.git", branch = "main" }
-deadpool-sqlite = { version = "0.12" }
+su_sqlite = { git = "https://github.com/sekunho/pkg.git", branch = "main" }
+deadpool-sqlite = { version = "0.14" }
 
 # Web
 axum = { version = "0.8", features = ["multipart", "macros", "json"] }
-axum-extra = { version = "0.10", features = [
+axum-extra = { version = "0.12", features = [
   "query",
   "form",
   "cookie",
@@ -60,26 +60,24 @@ url = { version = "2.5", features = ["serde"] }
 
 # Templating
 ammonia = { version = "4.0" }
-minijinja = { version = "2.19", default-features = false, features = [
-  "serde",
-  "deserialization",
+minijinja = { version = "3.0", default-features = false, features = [
   "macros",
-  "loader",
   "multi_template",
   "builtins",
   "json",
+  "serde",
 ] }
-minijinja-contrib = { version = "2.19", features = ["datetime"] }
+minijinja-contrib = { version = "3.0", features = ["datetime"] }
 pulldown-cmark = { version = "0.13" }
 su_template = { git = "https://github.com/sekunho/pkg.git", branch = "main" }
 
 # Serialization
 serde = { version = "1.0" }
-serde_html_form = "0.2.7"
+serde_html_form = "0.4"
 serde_json = { version = "1.0" }
 
 # Image
-resvg = "0.47.0"
+resvg = "0.48.0"
 
 # Async
 tokio = { version = "1.44", features = ["net", "rt-multi-thread", "signal"] }
@@ -91,8 +89,8 @@ rust_decimal = { version = "1.40", features = [] }
 tracing = { version = "0.1" }
 tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
 
-rss = { version = "2.0", features = [ "atom", "with-serde" ] }
-quick-xml = { version = "0.39" }
+rss = { version = "2.1", features = [ "atom", "with-serde" ] }
+quick-xml = { version = "0.41" }
 
 [workspace.lints.clippy]
 pedantic = { level = "deny", priority = -1 }
